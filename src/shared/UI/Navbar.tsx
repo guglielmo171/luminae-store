@@ -7,7 +7,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { CircleHelpIcon, CircleIcon, CircleCheckIcon, Sparkles } from "lucide-react";
+import { CircleHelpIcon, CircleIcon, CircleCheckIcon } from "lucide-react";
 import { Link, NavLink } from "react-router"
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -225,12 +225,14 @@ const navbarElements = [
     }
 ]
 
+import logo from "@/assets/logo.png";
+
 const Navbar = () => {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
                 <Link to="/" className="flex items-center gap-2 font-bold text-xl transition-colors hover:text-primary">
-                    <Sparkles className="size-6 text-primary" />
+                    <img src={logo} alt="Luminae Logo" className="size-12 object-contain" />
                     <span className="hidden sm:inline-block">Luminae</span>
                 </Link>
                 
