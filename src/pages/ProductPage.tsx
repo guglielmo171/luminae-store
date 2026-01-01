@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getProductById, getRelatedProducts } from "@/services/products";
+import { getProductById, getRelatedProducts } from "@/api/services/products";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
     ArrowLeft,

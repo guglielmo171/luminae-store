@@ -9,7 +9,7 @@ import {
     CardHeader,
     CardTitle
 } from "@/components/ui/card";
-import { type Product } from "@/services/products";
+import { type Product } from "@/api/services/products";
 import {
   ArrowRight,
     Heart,
