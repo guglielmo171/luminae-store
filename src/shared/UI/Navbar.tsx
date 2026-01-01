@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -6,11 +7,10 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import { CircleHelpIcon, CircleIcon, CircleCheckIcon } from "lucide-react";
-import { Link, NavLink } from "react-router"
+} from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
+import { Link, NavLink } from "react-router";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -225,9 +225,30 @@ const navbarElements = [
     }
 ]
 
+import { authQueryOptions, useSignOut } from "@/api/queries/authQueries";
 import logo from "@/assets/logo.png";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import { LogOut, User as UserIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
 const Navbar = () => {
+    const { data: user } = useQuery(authQueryOptions.user())
+    const signOut = useSignOut();
+    const navigate = useNavigate();
+
+    const handleSignOut = async () => {
+        await signOut.mutateAsync();
+        navigate("/login");
+    };
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
@@ -259,8 +280,46 @@ const Navbar = () => {
     </NavigationMenu>
 
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="sm" className="hidden sm:flex">Log in</Button>
-                    <Button size="sm" className="shadow-sm">Sign up</Button>
+                  {user ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                          <Avatar className="h-9 w-9 border border-border">
+                            <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || "User"} />
+                            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                              {user.email?.[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">My Account</p>
+                            <p className="text-xs leading-none text-muted-foreground truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <NavLink to="/profile" className="cursor-pointer">
+                                <UserIcon className="mr-2 h-4 w-4" />
+                                <span>Profile</span>
+                            </NavLink>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-600 cursor-pointer">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Button variant="ghost" size="sm" className="hidden sm:flex" asChild>
+                      <NavLink to="/login">Log in</NavLink>
+                    </Button>
+                  )}
                 </div>
             </div>
         </header>
