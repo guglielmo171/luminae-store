@@ -151,19 +151,19 @@ const ProductsPage = () => {
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <div className="relative group hidden sm:block">
+            {/* <div className="flex items-center gap-3"> */}
+              {/* <div className="relative group hidden sm:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <input 
                   type="text" 
                   placeholder="Quick search..."
                   className="h-11 w-[240px] lg:w-[320px] rounded-xl border border-input bg-background/50 pl-10 pr-4 text-sm outline-none ring-primary/20 transition-all focus:border-primary focus:ring-4 focus:bg-background"
                 />
-              </div>
-              <Button variant="outline" size="icon" className="shrink-0 h-11 w-11 rounded-xl">
+              </div> */}
+              {/* <Button variant="outline" size="icon" className="shrink-0 h-11 w-11 rounded-xl">
                 <SlidersHorizontal className="size-5" />
-              </Button>
-            </div>
+              </Button> */}
+            {/* </div> */}
           </div>
         </div>
       </header>
