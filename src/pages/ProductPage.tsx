@@ -13,7 +13,7 @@ import {
   Star,
   Truck
 } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Link, useParams, type LoaderFunctionArgs } from "react-router";
 
 import { createProductQueryOptions, createRelatedProductsQueryOptions } from "@/api/queries/productQueries";
@@ -23,6 +23,11 @@ import ProductItem from "@/shared/UI/ProductItem";
 
 const ProductDetailsContent = ({ id }: { id: string }) => {
   const [selectedImage, setSelectedImage] = useState(0);
+
+  
+  useEffect (() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   const { data: product } = useSuspenseQuery(createProductQueryOptions({id}));
 

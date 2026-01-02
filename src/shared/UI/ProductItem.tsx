@@ -7,8 +7,7 @@ import {
     CardContent,
     CardDescription,
     CardFooter,
-    CardHeader,
-    CardTitle
+    CardHeader
 } from "@/components/ui/card";
 import {
   ArrowRight,
