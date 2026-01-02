@@ -1,9 +1,8 @@
+import { createProductsQueryOptions } from "@/api/queries/productQueries";
+import { categoriesService } from "@/api/services/categoriesService";
 import { queryClient } from "@/App";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getCategories, getProducts, getProductsByCategory } from "@/services/products";
-import ProductItem from "@/shared/UI/ProductItem";
-import { useInView } from "react-intersection-observer";
-import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,42 +11,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
+import { Spinner } from "@/components/ui/spinner";
+import ProductItem from "@/shared/UI/ProductItem";
+import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
   Briefcase,
-  ChevronDown, 
-  Filter, 
-  Monitor, 
-  Search, 
-  SlidersHorizontal, 
-  Watch,
-  Check
+  Check,
+  ChevronDown,
+  Filter,
+  Monitor,
+  Search,
+  Watch
 } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
-import { Badge } from "@/components/ui/badge";
+import { useInView } from "react-intersection-observer";
 
 const ProductsListContent = ({ categoryId }: { categoryId: number | null }) => {
   const { ref, inView } = useInView({
     threshold: 0.1,
   });
 
-  const {
+    const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery({
-    queryKey: ["products", { categoryId }],
-    queryFn: async ({ pageParam = 0 }) => {
-      if (categoryId) {
-        return getProductsByCategory({ page: pageParam as number, id: categoryId });
-      }
-      return getProducts({ page: pageParam as number });
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages, lastPageParam) => 
-      lastPage.length === 10 ? (lastPageParam as number) + 1 : undefined,
-  });
+  } = useSuspenseInfiniteQuery(createProductsQueryOptions({categoryId}));
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -97,7 +86,7 @@ const CategoryFilters = ({
 }) => {
   const { data: categories } = useSuspenseQuery({
     queryKey: ["categories"],
-    queryFn: getCategories,
+    queryFn: async ()=>{const {data} = await categoriesService.getCategories();return data},  
   });
 
   const selectedCategoryName = selectedCategoryId 
@@ -161,19 +150,19 @@ const ProductsPage = () => {
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <div className="relative group hidden sm:block">
+            {/* <div className="flex items-center gap-3"> */}
+              {/* <div className="relative group hidden sm:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <input 
                   type="text" 
                   placeholder="Quick search..."
                   className="h-11 w-[240px] lg:w-[320px] rounded-xl border border-input bg-background/50 pl-10 pr-4 text-sm outline-none ring-primary/20 transition-all focus:border-primary focus:ring-4 focus:bg-background"
                 />
-              </div>
-              <Button variant="outline" size="icon" className="shrink-0 h-11 w-11 rounded-xl">
+              </div> */}
+              {/* <Button variant="outline" size="icon" className="shrink-0 h-11 w-11 rounded-xl">
                 <SlidersHorizontal className="size-5" />
-              </Button>
-            </div>
+              </Button> */}
+            {/* </div> */}
           </div>
         </div>
       </header>
@@ -265,23 +254,10 @@ const ProductsPage = () => {
 export default ProductsPage;
 
 export async function loader() {
-  // 1. CARICAMENTO BLOCCANTE (Await):
-  // Aspettiamo le categorie perché sono leggere e fondamentali per renderizzare
-  // i filtri correttamente fin da subito. Questo evita il "layout shift" della header.
   await queryClient.ensureQueryData({
     queryKey: ["categories"],
-    queryFn: getCategories,
+    queryFn: async ()=>{const {data} = await categoriesService.getCategories();return data},
   });
-
-  // 2. FETCH IN BACKGROUND (No Await):
-  // Avviamo la richiesta dei prodotti MA NON la aspettiamo con 'await'.
-  // In questo modo la navigazione avviene subito e la pagina mostrerà lo Skeleton
-  // mentre i dati arrivano. React Query troverà la fetch già in corso (o i dati già in cache).
-  queryClient.prefetchInfiniteQuery({
-    queryKey: ["products", { categoryId: null }],
-    queryFn: ({ pageParam = 0 }) => getProducts({ page: pageParam as number }),
-    initialPageParam: 0,
-  });
-  
+   queryClient.prefetchInfiniteQuery(createProductsQueryOptions({categoryId: null}));
   return null;
 }

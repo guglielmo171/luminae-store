@@ -1,22 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getProductById, getRelatedProducts } from "@/services/products";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
-    ArrowLeft,
-    ArrowRight,
-    Heart,
-    RefreshCcw,
-    Share2,
-    ShieldCheck,
-    ShoppingBag,
-    Star,
-    Truck
+  ArrowLeft,
+  ArrowRight,
+  Heart,
+  RefreshCcw,
+  Share2,
+  ShieldCheck,
+  ShoppingBag,
+  Star,
+  Truck
 } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Link, useParams, type LoaderFunctionArgs } from "react-router";
 
+import { createProductQueryOptions, createRelatedProductsQueryOptions } from "@/api/queries/productQueries";
 import { queryClient } from "@/App";
 import { SpinnerContent } from "@/components/ui/spinner";
 import ProductItem from "@/shared/UI/ProductItem";
@@ -24,14 +24,15 @@ import ProductItem from "@/shared/UI/ProductItem";
 const ProductDetailsContent = ({ id }: { id: string }) => {
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const { data: product } = useSuspenseQuery({
-    queryKey: ["product", id],
-    queryFn: () => getProductById(id),
-  });
+  
+  useEffect (() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  const { data: product } = useSuspenseQuery(createProductQueryOptions({id}));
 
   const { data: relatedProducts } = useSuspenseQuery({
-    queryKey: ["products", "related", id],
-    queryFn: () => getRelatedProducts(id),
+    ...createRelatedProductsQueryOptions({ id }),
     select: (products) => products.slice(0, 4),
   });
 
@@ -214,8 +215,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const id = params.id;
   if (!id) return null;
 
-  return await queryClient.ensureQueryData({
-    queryKey: ["product", id],
-    queryFn: () => getProductById(id),
-  });
+  return await queryClient.ensureQueryData(createProductQueryOptions({id}));
 }
+

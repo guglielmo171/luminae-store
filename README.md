@@ -20,6 +20,20 @@
 *   **Dynamic Filtering**: Server-side category filtering for efficient data handling.
 *   **Suspense Integration**: React 18 Suspense for elegant loading states.
 
+## Showcase
+
+### 🛍️ Product Listing & Filtering
+*Browse our catalog with server-side category filters and a responsive grid layout.*
+![Product Listing](public/Product-list.png)
+
+### 🔍 Product Details
+*Immersive product details with high-quality imagery and comprehensive specifications.*
+![Product Detail](public/product-detail.png)
+
+### 🔗 Related Products
+*Smart recommendations to help users discover similar items they'll love.*
+![Related Products](public/related-products.png)
+
 ## Getting Started
 
 1.  **Clone the repository**:
