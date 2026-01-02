@@ -16,6 +16,7 @@ import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions
 import { authService } from "@/api/services/authApi"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
+import { toast } from "sonner"
 
 const socialProviders = [
   {
@@ -45,7 +46,7 @@ export default function LoginPage() {
   const {mutate:signInWithMagicLink,isPending:isSignInWithMagicLinkPending} = useMutation({
     mutationFn: authService.signInWithMagicLink,
     onSuccess:()=>{
-      alert("Check your email for the login link!")
+      toast.success("Check your email for the login link!")
     }
   });
   const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
@@ -57,14 +58,14 @@ export default function LoginPage() {
   const {mutate:signUp,isPending:isSignUpPending} = useMutation({
     ...useSignUpOptions(),
     onSuccess:()=>{
-      alert("Account created! Please check your email to verify your account.")
+      toast.success("Account created! Please check your email to verify your account.")
       setMode("login")
     }
   })
   const {mutate:resetPassword,isPending:isResetPasswordPending} = useMutation({
     ...useResetPasswordOptions(),
     onSuccess:()=>{
-      alert("Password reset link sent to your email!")
+      toast.success("Password reset link sent to your email!")
       setMode("login")
     }
   })

@@ -1,5 +1,6 @@
 import { isAxiosError } from "axios";
 import { AuthError } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 export const handleGlobalError = (error: unknown) => {
   let message = "An unexpected error occurred";
@@ -17,5 +18,5 @@ export const handleGlobalError = (error: unknown) => {
     originalError: error,
   });
 
-  alert(message);
+  toast.error(message);
 };

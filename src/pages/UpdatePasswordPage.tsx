@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export default function UpdatePasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +21,8 @@ export default function UpdatePasswordPage() {
   const updatePassword = useMutation({
     ...useUpdateUserPasswordOptions(),
     onSuccess:()=>{
-      alert("Password updated successfully!");
+      // alert("Password updated successfully!");
+      toast.success("Password updated successfully!");
       navigate("/");
     }
   });
@@ -30,7 +32,8 @@ export default function UpdatePasswordPage() {
     const confirmPassword=fd.get("confirmPassword");
     
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      // alert("Passwords do not match!");
+      toast.error("Credenziali errate.");
       return;
     }
     updatePassword.mutate(password as string);    

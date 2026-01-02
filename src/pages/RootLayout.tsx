@@ -7,6 +7,7 @@ import { authKeys, authQueryOptions } from "@/api/queries/authQueries";
 import { supabase } from "@/lib/supabase";
 import { useQueryClient, QueryClient } from "@tanstack/react-query";
 import { authService } from "@/api/services/authApi";
+import { Toaster } from "@/components/ui/sonner";
 
 export const rootLoader = (queryClient: QueryClient) => async ({ request }: LoaderFunctionArgs) => {
     const url = new URL(request.url);
@@ -39,7 +40,10 @@ const RootLayout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+            <Toaster richColors />
+
       <main className="flex-grow">
+        
         {navigation.state === "loading" && <div className="flex items-center justify-center gap-4 py-8">
             <Spinner variant="primary" size="lg" />
           </div>}
