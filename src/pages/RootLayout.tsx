@@ -10,34 +10,16 @@ import { authService } from "@/api/services/authApi";
 
 export const rootLoader = (queryClient: QueryClient) => async ({ request }: LoaderFunctionArgs) => {
     const url = new URL(request.url);
-    const token_hash = url.searchParams.get("token_hash");
-    const type = url.searchParams.get("type");
-    const code = url.searchParams.get("code");
+    try {
+      const wasAuthHandled  = await authService.handleProtocolParams(url);
+    if (wasAuthHandled) return redirect(url.pathname);
 
-    if (token_hash) {
-        try {
-           await authService.verifyOtp(token_hash, type as any || "email");
-           return redirect(url.pathname);
-        } catch (error) {
-            console.error("Auth verification failed", error);
-            return redirect("/login");
-        }
-    }
-
-    if (code) {
-        try {
-            await supabase.auth.exchangeCodeForSession(code);
-            // After exchanging code, redirect to remove code from URL
-            return redirect(url.pathname);
-        } catch (error) {
-            console.error("Code exchange failed", error);
-            return redirect("/login");
-        }
-    }
-
-    // Prefetch user session
     await queryClient.ensureQueryData(authQueryOptions.user());
 
+    } catch (error) {
+      console.error("Auth initialization failed", error);
+        return redirect("/login");
+    }
     return null;
 }
 

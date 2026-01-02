@@ -225,7 +225,7 @@ const navbarElements = [
     }
 ]
 
-import { authQueryOptions, useSignOut } from "@/api/queries/authQueries";
+import { authQueryOptions, useSignOutOptions } from "@/api/queries/authQueries";
 import logo from "@/assets/logo.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -236,19 +236,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 
 const Navbar = () => {
-    const { data: user } = useQuery(authQueryOptions.user())
-    const signOut = useSignOut();
     const navigate = useNavigate();
+    const { data: user } = useQuery(authQueryOptions.user())
+    const {mutate:handleSignOut} = useMutation({
+        ...useSignOutOptions(),
+        onSuccess:()=>{
+            navigate("/login");
+        }
+    });
 
-    const handleSignOut = async () => {
-        await signOut.mutateAsync();
-        navigate("/login");
-    };
+    // const handleSignOut = async () => {
+    //     await signOut.mutateAsync();
+    //     navigate("/login");
+    // };
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
@@ -309,7 +314,7 @@ const Navbar = () => {
                             </NavLink>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-600 cursor-pointer">
+                        <DropdownMenuItem onClick={()=>handleSignOut()} className="text-red-600 focus:text-red-600 cursor-pointer">
                           <LogOut className="mr-2 h-4 w-4" />
                           <span>Log out</span>
                         </DropdownMenuItem>

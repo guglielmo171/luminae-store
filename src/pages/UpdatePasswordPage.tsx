@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useUpdateUserPassword } from "@/api/queries/authQueries";
+import { useUpdateUserPasswordOptions } from "@/api/queries/authQueries";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,28 +12,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
 export default function UpdatePasswordPage() {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const updatePassword = useUpdateUserPassword();
   const navigate = useNavigate();
+  const updatePassword = useMutation({
+    ...useUpdateUserPasswordOptions(),
+    onSuccess:()=>{
+      alert("Password updated successfully!");
+      navigate("/");
+    }
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (fd:FormData) => {
+    const password=fd.get("password");
+    const confirmPassword=fd.get("confirmPassword");
+    
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-
-    try {
-      await updatePassword.mutateAsync(password);
-      alert("Password updated successfully!");
-      navigate("/");
-    } catch (error: any) {
-      alert(error.message || "Failed to update password");
-    }
+    updatePassword.mutate(password as string);    
   };
 
   return (
@@ -47,15 +47,14 @@ export default function UpdatePasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="grid gap-6">
+            <form action={handleSubmit} className="grid gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="password">New Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <Button
@@ -77,9 +76,8 @@ export default function UpdatePasswordPage() {
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
+                  name="confirmPassword"
                   type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
               </div>

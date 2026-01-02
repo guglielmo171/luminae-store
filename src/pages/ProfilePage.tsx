@@ -1,39 +1,44 @@
 import {
-    authQueryOptions,
-    useSignOut
+  authQueryOptions,
+  useSignOutOptions
 } from "@/api/queries/authQueries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-    Activity,
-    LogOut,
-    Mail,
-    MapPin,
-    Phone,
-    Settings,
-    Shield,
-    User
+  Activity,
+  LogOut,
+  Mail,
+  MapPin,
+  Phone,
+  Settings,
+  Shield,
+  User
 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 export default function ProfilePage() {
   const { data: user, isLoading } = useQuery(authQueryOptions.user());
-  const signOut = useSignOut();
+  const {mutate:handleSignOut,isPending} = useMutation({
+    ...useSignOutOptions(),
+    onSuccess:()=>{
+      navigate("/");
+    }
+  });
   const navigate = useNavigate();
 
-  const handleSignOut = async () => {
-    await signOut.mutateAsync();
-    navigate("/");
-  };
+  // const handleSignOut = async () => {
+  //   await signOut.mutateAsync();
+  //   navigate("/");
+  // };
 
   if (isLoading) {
     return (
@@ -103,10 +108,10 @@ export default function ProfilePage() {
           <Button
             variant="destructive"
             size="sm"
-            onClick={handleSignOut}
-            disabled={signOut.isPending}
+            onClick={()=>handleSignOut()}
+            disabled={isPending}
           >
-            {signOut.isPending ? (
+            {isPending ? (
               "Sign out..."
             ) : (
               <>

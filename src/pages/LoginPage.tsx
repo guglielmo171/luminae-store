@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button"
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,9 +12,9 @@ import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 
 
+import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
 import { authService } from "@/api/services/authApi"
 import { useMutation } from "@tanstack/react-query"
-import { useSignInWithPassword, useSignUp, useResetPassword } from "@/api/queries/authQueries"
 import { useNavigate } from "react-router"
 
 const socialProviders = [
@@ -42,37 +42,47 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup" | "magic_link" | "forgot_password">("login")
   const navigate = useNavigate()
 
-  const signInWithMagicLink = useMutation({
+  const {mutate:signInWithMagicLink,isPending:isSignInWithMagicLinkPending} = useMutation({
     mutationFn: authService.signInWithMagicLink,
+    onSuccess:()=>{
+      alert("Check your email for the login link!")
+    }
   });
-  const signInWithPassword = useSignInWithPassword()
-  const signUp = useSignUp()
-  const resetPassword = useResetPassword()
+  const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
+    ...useSignInWithPasswordOptions(),
+    onSuccess:()=>{
+      navigate("/")
+    }
+  })
+  const {mutate:signUp,isPending:isSignUpPending} = useMutation({
+    ...useSignUpOptions(),
+    onSuccess:()=>{
+      alert("Account created! Please check your email to verify your account.")
+      setMode("login")
+    }
+  })
+  const {mutate:resetPassword,isPending:isResetPasswordPending} = useMutation({
+    ...useResetPasswordOptions(),
+    onSuccess:()=>{
+      alert("Password reset link sent to your email!")
+      setMode("login")
+    }
+  })
 
   const handleActionSubmit= async (formData:FormData)=>{
     const data = Object.fromEntries(formData.entries())
     const email=data.email as string
     const password=data.password as string
     console.log('form data',data);
-    try {
       if (mode === "magic_link") {
-        await signInWithMagicLink.mutateAsync(email)
-        alert("Check your email for the login link!")
+        signInWithMagicLink(email)
       } else if (mode === "signup") {
-        await signUp.mutateAsync({ email, password })
-        alert("Account created! Please check your email to verify your account.")
-        setMode("login")
+         signUp({ email, password })
       } else if (mode === "forgot_password") {
-        await resetPassword.mutateAsync(email)
-        alert("Password reset link sent to your email!")
-        setMode("login")
+          resetPassword(email)
       } else {
-        await signInWithPassword.mutateAsync({ email, password })
-        navigate("/")
+         signInWithPassword({ email, password })
       }
-    } catch (error: any) {
-      alert(error.message || error.error_description || "Authentication failed")
-    }
   } 
 
   const dynamicText={
@@ -104,6 +114,8 @@ export default function LoginPage() {
                   : "Login with Magic Link",
     
   }
+
+  const isAuthPending = isSignInWithMagicLinkPending || isSignInWithPasswordPending || isSignUpPending || isResetPasswordPending
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
@@ -172,8 +184,8 @@ export default function LoginPage() {
                       </div>
                     </div>
                   )}
-                  <Button type="submit" className="w-full" disabled={signInWithMagicLink.isPending || signInWithPassword.isPending || signUp.isPending || resetPassword.isPending}>
-                    {(signInWithMagicLink.isPending || signInWithPassword.isPending || signUp.isPending || resetPassword.isPending)
+                  <Button type="submit" className="w-full" disabled={isAuthPending}>
+                    {(isAuthPending)
                         ? "Loading..."
                         : dynamicText.loading
                     }

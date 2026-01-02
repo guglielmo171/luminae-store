@@ -11,6 +11,25 @@ export const authService = {
     if (error) throw error;
   },
 
+handleProtocolParams: async (url: URL) => {
+  const token_hash = url.searchParams.get("token_hash");
+  const type = url.searchParams.get("type");
+  const code = url.searchParams.get("code");
+
+  if (token_hash) {
+    await authService.verifyOtp(token_hash, type as any || "email");
+    return true;
+  }
+  
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) throw error;
+    return true;
+  }
+  
+  return false;
+},
+
   signInWithPassword: async ({email, password}: {email:string, password:string}) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,

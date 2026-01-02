@@ -9,7 +9,14 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-export const queryClient = new QueryClient();
+import { handleGlobalError } from './api/utils/errorHandler';
+export const queryClient = new QueryClient({
+  defaultOptions:{
+    mutations:{
+      onError:(error)=>handleGlobalError(error)
+    }
+  }
+});
 function App() {
 
   const router = createBrowserRouter([

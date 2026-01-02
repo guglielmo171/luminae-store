@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import { mutationOptions, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../services/authApi";
 
 export const authKeys = {
@@ -36,9 +36,9 @@ export function useVerifyOtp() {
   });
 }
 
-export function useSignInWithPassword() {
+export function useSignInWithPasswordOptions() {
   const queryClient = useQueryClient();
-  return useMutation({
+  return mutationOptions({
     mutationFn: authService.signInWithPassword,
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: authKeys.session() });
@@ -47,15 +47,15 @@ export function useSignInWithPassword() {
   });
 }
 
-export function useSignUp() {
-  return useMutation({
+export function useSignUpOptions() {
+  return mutationOptions({
     mutationFn: authService.signUp,
   });
 }
 
-export function useSignOut() {
+export function useSignOutOptions() {
   const queryClient = useQueryClient();
-  return useMutation({
+  return mutationOptions({
     mutationFn: authService.signOut,
     onSuccess: () => {
       queryClient.setQueryData(authKeys.session(), null);
@@ -64,14 +64,14 @@ export function useSignOut() {
   });
 }
 
-export function useResetPassword() {
-  return useMutation({
+export function useResetPasswordOptions() {
+  return mutationOptions({
     mutationFn: authService.resetPasswordForEmail,
   });
 }
 
-export function useUpdateUserPassword() {
-  return useMutation({
+export function useUpdateUserPasswordOptions() {
+  return mutationOptions({
     mutationFn: authService.updateUserPassword,
-  });
+  })
 }
