@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../services/authApi";
 
 export const authKeys = {
@@ -61,5 +61,17 @@ export function useSignOut() {
       queryClient.setQueryData(authKeys.session(), null);
       queryClient.setQueryData(authKeys.user(), null);
     },
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: authService.resetPasswordForEmail,
+  });
+}
+
+export function useUpdateUserPassword() {
+  return useMutation({
+    mutationFn: authService.updateUserPassword,
   });
 }

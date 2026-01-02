@@ -14,7 +14,7 @@ import { useState } from "react"
 
 import { authService } from "@/api/services/authApi"
 import { useMutation } from "@tanstack/react-query"
-import { useSignInWithPassword, useSignUp } from "@/api/queries/authQueries"
+import { useSignInWithPassword, useSignUp, useResetPassword } from "@/api/queries/authQueries"
 import { useNavigate } from "react-router"
 
 const socialProviders = [
@@ -39,10 +39,7 @@ const socialProviders = [
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const [mode, setMode] = useState<"login" | "signup" | "magic_link">("login")
-
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [mode, setMode] = useState<"login" | "signup" | "magic_link" | "forgot_password">("login")
   const navigate = useNavigate()
 
   const signInWithMagicLink = useMutation({
@@ -50,9 +47,13 @@ export default function LoginPage() {
   });
   const signInWithPassword = useSignInWithPassword()
   const signUp = useSignUp()
+  const resetPassword = useResetPassword()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleActionSubmit= async (formData:FormData)=>{
+    const data = Object.fromEntries(formData.entries())
+    const email=data.email as string
+    const password=data.password as string
+    console.log('form data',data);
     try {
       if (mode === "magic_link") {
         await signInWithMagicLink.mutateAsync(email)
@@ -61,6 +62,10 @@ export default function LoginPage() {
         await signUp.mutateAsync({ email, password })
         alert("Account created! Please check your email to verify your account.")
         setMode("login")
+      } else if (mode === "forgot_password") {
+        await resetPassword.mutateAsync(email)
+        alert("Password reset link sent to your email!")
+        setMode("login")
       } else {
         await signInWithPassword.mutateAsync({ email, password })
         navigate("/")
@@ -68,26 +73,34 @@ export default function LoginPage() {
     } catch (error: any) {
       alert(error.message || error.error_description || "Authentication failed")
     }
-  }
+  } 
 
   const dynamicText={
     title:mode === "magic_link"
                   ? "Login with Magic Link"
                   : mode === "signup"
                   ? "Create an account"
+                  : mode === "forgot_password"
+                  ? "Reset Password"
                   : "Login",
     description:mode === "magic_link"
                   ? "Enter your email to receive a login link"
                   : mode === "signup"
                   ? "Enter your email below to create your account"
+                  : mode === "forgot_password"
+                  ? "Enter your email to receive a reset link"
                   : "Enter your email below to login to your account",
     loading:mode === "magic_link"
-                  ? "Sending magic link..."
+                  ? "Send magic link"
                   : mode === "signup"
-                  ? "Creating account..."
-                  : "Logging in...",
+                  ? "Create account"
+                  : mode === "forgot_password"
+                  ? "Send reset link"
+                  : "Log in",
     switchMode:mode === "magic_link"
                   ? "Login with Password"
+                  : mode === "forgot_password"
+                  ? "Back to Login"
                   : "Login with Magic Link",
     
   }
@@ -106,38 +119,37 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit}>
+              <form  action={handleActionSubmit}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
+                      name="email"
                       placeholder="m@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
-                  {mode !== "magic_link" && (
+                  {mode !== "magic_link" && mode !== "forgot_password" && (
                     <div className="grid gap-2">
                       <div className="flex items-center">
                         <Label htmlFor="password">Password</Label>
                         {mode === "login" && (
-                            <a
-                              href="#"
+                            <button
+                              type="button"
+                              onClick={() => setMode("forgot_password")}
                               className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                             >
                               Forgot your password?
-                            </a>
+                            </button>
                         )}
                       </div>
                       <div className="relative">
                         <Input
                           id="password"
+                          name="password"
                           type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
                           required
                           
                         />
@@ -160,8 +172,8 @@ export default function LoginPage() {
                       </div>
                     </div>
                   )}
-                  <Button type="submit" className="w-full" disabled={signInWithMagicLink.isPending || signInWithPassword.isPending || signUp.isPending}>
-                    {(signInWithMagicLink.isPending || signInWithPassword.isPending || signUp.isPending)
+                  <Button type="submit" className="w-full" disabled={signInWithMagicLink.isPending || signInWithPassword.isPending || signUp.isPending || resetPassword.isPending}>
+                    {(signInWithMagicLink.isPending || signInWithPassword.isPending || signUp.isPending || resetPassword.isPending)
                         ? "Loading..."
                         : dynamicText.loading
                     }
@@ -169,7 +181,7 @@ export default function LoginPage() {
                   <div className="text-center text-sm">
                     <button
                       type="button"
-                      onClick={() => setMode(mode === "magic_link" ? "login" : "magic_link")}
+                      onClick={() => setMode(mode === "login" ? "magic_link" : "login")}
                       className="underline underline-offset-4"
                     >
                       {dynamicText.switchMode}
@@ -181,7 +193,7 @@ export default function LoginPage() {
                     </span>
                   </div>
                   <div className="flex flex-col gap-4">
-                    {socialProviders.map(s => (<Button variant="outline" className="w-full">
+                    {socialProviders.map(s => (<Button key={s.id} type="button" variant="outline" className="w-full">
                       {s.icon}
                       {s.name}
                     </Button>))}

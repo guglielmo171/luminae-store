@@ -12,16 +12,25 @@ export const rootLoader = (queryClient: QueryClient) => async ({ request }: Load
     const url = new URL(request.url);
     const token_hash = url.searchParams.get("token_hash");
     const type = url.searchParams.get("type");
+    const code = url.searchParams.get("code");
 
     if (token_hash) {
         try {
            await authService.verifyOtp(token_hash, type as any || "email");
-           // After successful verification, redirect to remove hash, but keep path if we can (though verification usually lands on root or specific place)
-           // Let's redirect to root or the same path without search params
            return redirect(url.pathname);
         } catch (error) {
             console.error("Auth verification failed", error);
-            // We could return error to show in an error boundary, or just redirect to login
+            return redirect("/login");
+        }
+    }
+
+    if (code) {
+        try {
+            await supabase.auth.exchangeCodeForSession(code);
+            // After exchanging code, redirect to remove code from URL
+            return redirect(url.pathname);
+        } catch (error) {
+            console.error("Code exchange failed", error);
             return redirect("/login");
         }
     }
