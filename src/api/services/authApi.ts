@@ -11,6 +11,24 @@ export const authService = {
     if (error) throw error;
   },
 
+  signInWithPassword: async ({email, password}: {email:string, password:string}) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  signUp: async ({email, password}: {email:string, password:string}) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  },
+
   verifyOtp: async (token_hash: string, type: any) => {
     const { error } = await supabase.auth.verifyOtp({
       token_hash,

@@ -36,6 +36,23 @@ export function useVerifyOtp() {
   });
 }
 
+export function useSignInWithPassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authService.signInWithPassword,
+    onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: authKeys.session() });
+       queryClient.invalidateQueries({ queryKey: authKeys.user() });
+    },
+  });
+}
+
+export function useSignUp() {
+  return useMutation({
+    mutationFn: authService.signUp,
+  });
+}
+
 export function useSignOut() {
   const queryClient = useQueryClient();
   return useMutation({
