@@ -18,7 +18,7 @@ export function createProductsQueryOptions({categoryId}: {categoryId?: number | 
     },
     staleTime: 5 * 60 * 1000,
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages, lastPageParam) => 
+    getNextPageParam: (lastPage, _, lastPageParam) => 
       lastPage.length === 10 ? (lastPageParam as number) + 1 : undefined,
   });
 }

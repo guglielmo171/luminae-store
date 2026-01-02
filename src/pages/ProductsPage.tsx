@@ -21,7 +21,6 @@ import {
   Filter,
   Monitor,
   Search,
-  SlidersHorizontal,
   Watch
 } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
