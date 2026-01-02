@@ -1,3 +1,4 @@
+import type { Product } from "@/api/types/Product.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,10 +7,8 @@ import {
     CardContent,
     CardDescription,
     CardFooter,
-    CardHeader,
-    CardTitle
+    CardHeader
 } from "@/components/ui/card";
-import { type Product } from "@/api/services/products";
 import {
   ArrowRight,
     Heart,

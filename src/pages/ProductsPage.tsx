@@ -1,5 +1,5 @@
 import { createProductsQueryOptions } from "@/api/queries/productQueries";
-import { getCategories } from "@/api/services/products";
+import { categoriesService } from "@/api/services/categoriesService";
 import { queryClient } from "@/App";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,7 +87,7 @@ const CategoryFilters = ({
 }) => {
   const { data: categories } = useSuspenseQuery({
     queryKey: ["categories"],
-    queryFn: getCategories,
+    queryFn: async ()=>{const {data} = await categoriesService.getCategories();return data},  
   });
 
   const selectedCategoryName = selectedCategoryId 
@@ -257,7 +257,7 @@ export default ProductsPage;
 export async function loader() {
   await queryClient.ensureQueryData({
     queryKey: ["categories"],
-    queryFn: getCategories,
+    queryFn: async ()=>{const {data} = await categoriesService.getCategories();return data},
   });
    queryClient.prefetchInfiniteQuery(createProductsQueryOptions({categoryId: null}));
   return null;
