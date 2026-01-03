@@ -19,7 +19,7 @@ import { Link, useParams, type LoaderFunctionArgs } from "react-router";
 import { createProductQueryOptions, createRelatedProductsQueryOptions } from "@/api/queries/productQueries";
 import { queryClient } from "@/App";
 import { SpinnerContent } from "@/components/ui/spinner";
-import ProductItem from "@/shared/UI/ProductItem";
+import ProductItem from "@/shared/UI/product/ProductItem";
 
 const ProductDetailsContent = ({ id }: { id: string }) => {
   const [selectedImage, setSelectedImage] = useState(0);
