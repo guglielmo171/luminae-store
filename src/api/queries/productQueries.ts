@@ -11,10 +11,9 @@ export function createProductsQueryOptions({categoryId}: {categoryId?: number | 
     return infiniteQueryOptions({
     queryKey: productQueries.all(categoryId),
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await (categoryId 
+      return categoryId 
         ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId }) 
-        : productsService.getProducts({ page: pageParam as number }));
-      return response.data;
+        : productsService.getProducts({ page: pageParam as number });
     },
     staleTime: 5 * 60 * 1000,
     initialPageParam: 0,
@@ -27,20 +26,14 @@ export function createProductsQueryOptions({categoryId}: {categoryId?: number | 
 export function createProductQueryOptions({ id }: { id: number | string }) {
   return queryOptions({
     queryKey: ["product", id],
-    queryFn: async () => {
-      const { data } = await productsService.getProductById(id);
-      return data;
-    },
+    queryFn: () => productsService.getProductById(id),
   });
 }
 
 export function createRelatedProductsQueryOptions({ id }: { id: number | string }) {
   return queryOptions({
     queryKey: productQueries.related(id),
-    queryFn: async () => {
-      const { data } = await productsService.getRelatedProducts(id);
-      return data;
-    },
+    queryFn: () => productsService.getRelatedProducts(id),
   });
 }
 

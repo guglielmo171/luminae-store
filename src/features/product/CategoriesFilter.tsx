@@ -6,7 +6,7 @@ const CategoryFilters = (props: Omit<CategoryFiltersViewProps, 'categories'>) =>
   
    const { data: categories } = useSuspenseQuery({
     queryKey: ["categories"],
-    queryFn: async ()=>{const {data} = await categoriesService.getCategories();return data},  
+    queryFn: () => categoriesService.getCategories(),  
   });
   return <CategoryFiltersView categories={categories} {...props} />;
 };
