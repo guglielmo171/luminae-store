@@ -1,86 +1,93 @@
 import { supabase } from "@/lib/supabase";
+import { handleAuthCall } from "../utils/apiUtils";
 
 export const authService = {
-  signInWithMagicLink: async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
+  signInWithMagicLink: (email: string) =>
+    handleAuthCall(
+      supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin },
+      }),
+      "signInWithMagicLink"
+    ),
+
+  handleProtocolParams: async (url: URL) => {
+    const token_hash = url.searchParams.get("token_hash");
+    const type = url.searchParams.get("type");
+    const code = url.searchParams.get("code");
+
+    if (token_hash) {
+      await authService.verifyOtp(token_hash, (type as any) || "email");
+      return true;
+    }
+
+    if (code) {
+      await handleAuthCall(
+        supabase.auth.exchangeCodeForSession(code),
+        "exchangeCodeForSession"
+      );
+      return true;
+    }
+
+    return false;
   },
 
-handleProtocolParams: async (url: URL) => {
-  const token_hash = url.searchParams.get("token_hash");
-  const type = url.searchParams.get("type");
-  const code = url.searchParams.get("code");
+  signInWithPassword: ({ email, password }: { email: string; password: string }) =>
+    handleAuthCall(
+      supabase.auth.signInWithPassword({ email, password }),
+      "signInWithPassword"
+    ),
 
-  if (token_hash) {
-    await authService.verifyOtp(token_hash, type as any || "email");
-    return true;
-  }
-  
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) throw error;
-    return true;
-  }
-  
-  return false;
-},
+  signUp: ({ email, password }: { email: string; password: string }) =>
+    handleAuthCall(
+      supabase.auth.signUp({ email, password }),
+      "signUp"
+    ),
 
-  signInWithPassword: async ({email, password}: {email:string, password:string}) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  signUp: async ({email, password}: {email:string, password:string}) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  verifyOtp: async (token_hash: string, type: any) => {
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash,
-      type,
-    });
-    if (error) throw error;
-  },
+  verifyOtp: (token_hash: string, type: any) =>
+    handleAuthCall(
+      supabase.auth.verifyOtp({ token_hash, type }),
+      "verifyOtp"
+    ),
 
   getSession: async () => {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return data.session;
+    const data = await handleAuthCall(
+      supabase.auth.getSession(),
+      "getSession",
+      { session: null } as any
+    );
+    return data?.session;
   },
 
-  userData : async () => {
-       const { data: { user } } = await supabase.auth.getUser()
-       return user;
+  userDataDetail: () =>
+    handleAuthCall(
+      supabase.auth.getUser(),
+      "getUser",
+      { user: null } as any
+    ),
+
+  userData: async () => {
+    const data = await authService.userDataDetail();
+    return data?.user;
   },
 
-  signOut: async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  },
+  signOut: () =>
+    handleAuthCall(
+      supabase.auth.signOut(),
+      "signOut"
+    ),
 
-  resetPasswordForEmail: async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/update-password`,
-    });
-    if (error) throw error;
-  },
+  resetPasswordForEmail: (email: string) =>
+    handleAuthCall(
+      supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      }),
+      "resetPasswordForEmail"
+    ),
 
-  updateUserPassword: async (password: string) => {
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) throw error;
-  },
+  updateUserPassword: (password: string) =>
+    handleAuthCall(
+      supabase.auth.updateUser({ password }),
+      "updateUserPassword"
+    ),
 };

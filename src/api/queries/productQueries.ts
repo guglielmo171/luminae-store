@@ -6,19 +6,21 @@ import { productsService } from "../services/productsApi";
   related: (id: number | string) => ["products", "related", id] as const,
 };
 
-
-export function createProductsQueryOptions({categoryId}: {categoryId?: number | null}){
-    return infiniteQueryOptions({
+export function createProductsQueryOptions({ categoryId }: { categoryId?: number | null }) {
+  return infiniteQueryOptions({
     queryKey: productQueries.all(categoryId),
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await (categoryId 
-        ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId }) 
-        : productsService.getProducts({ page: pageParam as number }));
-      return response.data;
+      const [response] = await Promise.all([
+        categoryId
+          ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId })
+          : productsService.getProducts({ page: pageParam as number }),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+      return response;
     },
     staleTime: 5 * 60 * 1000,
     initialPageParam: 0,
-    getNextPageParam: (lastPage, _, lastPageParam) => 
+    getNextPageParam: (lastPage, _, lastPageParam) =>
       lastPage.length === 10 ? (lastPageParam as number) + 1 : undefined,
   });
 }
@@ -27,20 +29,14 @@ export function createProductsQueryOptions({categoryId}: {categoryId?: number | 
 export function createProductQueryOptions({ id }: { id: number | string }) {
   return queryOptions({
     queryKey: ["product", id],
-    queryFn: async () => {
-      const { data } = await productsService.getProductById(id);
-      return data;
-    },
+    queryFn: () => productsService.getProductById(id),
   });
 }
 
 export function createRelatedProductsQueryOptions({ id }: { id: number | string }) {
   return queryOptions({
     queryKey: productQueries.related(id),
-    queryFn: async () => {
-      const { data } = await productsService.getRelatedProducts(id);
-      return data;
-    },
+    queryFn: () => productsService.getRelatedProducts(id),
   });
 }
 

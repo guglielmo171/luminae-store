@@ -1,0 +1,39 @@
+import { createProductsQueryOptions } from "@/api/queries/productQueries";
+import { Spinner } from "@/components/ui/spinner";
+import { ProductList } from "@/shared/UI/product/ProductList";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+
+const ProductsListContent = ({ categoryId }: { categoryId: number | null }) => {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+  });
+
+    const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useSuspenseInfiniteQuery(createProductsQueryOptions({categoryId}));
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const allProducts = data.pages.flat();
+
+return <ProductList products={allProducts}>
+    <div ref={ref} className="mt-12 flex justify-center py-4">
+        {isFetchingNextPage && (
+          <div className="flex items-center gap-4 py-8">
+            <Spinner variant="primary" size="lg" />
+          </div>
+        )}
+      </div>
+</ProductList>
+};
+
+export default ProductsListContent;
