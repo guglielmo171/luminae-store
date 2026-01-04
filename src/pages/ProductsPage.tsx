@@ -127,7 +127,7 @@ export default ProductsPage;
 export async function loader() {
   await queryClient.ensureQueryData({
     queryKey: ["categories"],
-    queryFn: async ()=>{const {data} = await categoriesService.getCategories();return data},
+    queryFn:categoriesService.getCategories,
   });
    queryClient.prefetchInfiniteQuery(createProductsQueryOptions({categoryId: null}));
   return null;

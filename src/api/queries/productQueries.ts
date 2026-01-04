@@ -6,18 +6,21 @@ import { productsService } from "../services/productsApi";
   related: (id: number | string) => ["products", "related", id] as const,
 };
 
-
-export function createProductsQueryOptions({categoryId}: {categoryId?: number | null}){
-    return infiniteQueryOptions({
+export function createProductsQueryOptions({ categoryId }: { categoryId?: number | null }) {
+  return infiniteQueryOptions({
     queryKey: productQueries.all(categoryId),
     queryFn: async ({ pageParam = 0 }) => {
-      return categoryId 
-        ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId }) 
-        : productsService.getProducts({ page: pageParam as number });
+      const [response] = await Promise.all([
+        categoryId
+          ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId })
+          : productsService.getProducts({ page: pageParam as number }),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+      return response;
     },
     staleTime: 5 * 60 * 1000,
     initialPageParam: 0,
-    getNextPageParam: (lastPage, _, lastPageParam) => 
+    getNextPageParam: (lastPage, _, lastPageParam) =>
       lastPage.length === 10 ? (lastPageParam as number) + 1 : undefined,
   });
 }
