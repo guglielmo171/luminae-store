@@ -23,7 +23,7 @@ import {
   Shield,
   User
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function ProfilePage() {
   const { data: user, isLoading } = useQuery(authQueryOptions.user());
@@ -34,11 +34,6 @@ export default function ProfilePage() {
     }
   });
   const navigate = useNavigate();
-
-  // const handleSignOut = async () => {
-  //   await signOut.mutateAsync();
-  //   navigate("/");
-  // };
 
   if (isLoading) {
     return (
@@ -248,7 +243,9 @@ export default function ProfilePage() {
                         Auth method: Magic Link / OTP. No password set.
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm" className="ml-auto h-8">Update</Button>
+                    <Link to="/update-password">
+                    <Button variant="ghost" size="sm" className="ml-auto h-8" >Change password</Button>
+                    </Link>
                   </div>
                </div>
             </CardContent>
