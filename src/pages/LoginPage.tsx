@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from 'react-hook-form'
 
 
@@ -53,10 +53,36 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup" | "magic_link" | "forgot_password">("login")
   const navigate = useNavigate()
   const form = useForm<AuthFormData>({
-  resolver: zodResolver(authSchema), // Collega Zod
-  defaultValues: { email: '', password: '' }, // Persistenza iniziale
-  reValidateMode:"onBlur"
-});
+    resolver: zodResolver(authSchema),
+    defaultValues: { 
+      email: '', 
+      password: '', 
+      mode: "login" 
+    },
+    mode: 'onBlur',       // Valida prima volta solo al click
+    reValidateMode: 'onChange', // Rimuove l'errore mentre correggi
+  });
+
+  // [DEBUG] useForm:
+useEffect(() => {
+  const subscription = form.watch((value, { name }) => {
+    // console.log('FIELD CHANGE:', name, value);
+  });
+  return () => subscription.unsubscribe();
+}, [form.watch]);
+
+useEffect(() => {
+  console.log('ERRORS UPDATE:', form.formState.errors);
+}, [form.formState.errors]);
+
+
+
+
+const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_password") => {
+  setMode(newMode); 
+  form.setValue('mode', newMode);
+  form.clearErrors(); 
+}
 
   const {mutate:signInWithMagicLink,isPending:isSignInWithMagicLinkPending} = useMutation({
     mutationFn: authService.signInWithMagicLink,
@@ -67,7 +93,7 @@ export default function LoginPage() {
   const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
     ...useSignInWithPasswordOptions(),
     onSuccess:()=>{
-      form.reset(); // ✅ Solo qui
+      form.reset(); 
       toast.success('Logged in successfully!');
       navigate("/")
     }
@@ -76,72 +102,39 @@ export default function LoginPage() {
     ...useSignUpOptions(),
     onSuccess:()=>{
       toast.success("Account created! Please check your email to verify your account.")
-      setMode("login")
+      handleModeChange("login")
+
     }
   })
   const {mutate:resetPassword,isPending:isResetPasswordPending} = useMutation({
     ...useResetPasswordOptions(),
     onSuccess:()=>{
       toast.success("Password reset link sent to your email!")
-      setMode("login")
+      handleModeChange("login")
     }
   })
 
+  console.log('FORM ERRORS', form.formState.errors);
+
+
   const onSubmit= (data:AuthFormData)=>{
     const { email, password } = data;
+
     switch (mode) {
     case 'login':
-      signInWithPassword({ email, password }); // Auto: isPending, onSuccess
+      signInWithPassword({ email, password:password! });
       break;
     case 'magic_link':
       signInWithMagicLink(email);
       break;
     case 'signup':
-      signUp({ email, password });
+      signUp({ email, password:password! });
       break;
     case 'forgot_password':
       resetPassword(email);
       break;
+  } 
   }
-  }
-
-// const handleActionSubmit= async (prevState:(FormState|null),formData:FormData)=>{
-//     const {email,password} = Object.fromEntries(formData.entries()) as unknown as FormDataState;
-//     const errors:FormState["errors"]=[]
-
-//     if(!email.includes("@")){
-//       errors.push("Email not well formatted")
-//     }
-
-//     if(errors.length > 0){
-//        return {
-//         errors,
-//         formData:{
-//           email,
-//           password
-//         }
-//       }
-//     }
-
-//     console.log('prevState',prevState);
-    
-//     console.log('form data',{email,password});
-//       if (mode === "magic_link") {
-//         signInWithMagicLink(email)
-//       } else if (mode === "signup") {
-//          signUp({ email, password })
-//       } else if (mode === "forgot_password") {
-//           resetPassword(email)
-//       } else {
-//          signInWithPassword({ email, password })
-//       }
-
-//      return {
-//       errors:null
-//      };
-//   } 
-
-  // const [state,action]=useActionState(handleActionSubmit,null)
 
   const dynamicText={
     title:mode === "magic_link"
@@ -197,7 +190,7 @@ export default function LoginPage() {
                       id="email"
                       type="email"
                       placeholder="m@example.com"
-                      {...form.register('email')} // ✅ Registra + valida live
+                      {...form.register('email')}
                       aria-invalid={!!form.formState.errors.email}
                     />
                      {form.formState.errors.email && (
@@ -205,7 +198,6 @@ export default function LoginPage() {
                             {form.formState.errors.email.message}
                           </p>
                         )}
-                    {/* {state?.errors && state.errors.map(err=>(<small key={err} style={{color:'red'}}>{err}</small>))} */}
                   </div>
                   {mode !== "magic_link" && mode !== "forgot_password" && (
                     <div className="grid gap-2">
@@ -214,7 +206,7 @@ export default function LoginPage() {
                         {mode === "login" && (
                             <button
                               type="button"
-                              onClick={() => setMode("forgot_password")}
+                              onClick={() => handleModeChange("forgot_password")}
                               className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                             >
                               Forgot your password?
@@ -225,14 +217,9 @@ export default function LoginPage() {
                         <Input
                           id="password"
                           type={showPassword ? "text" : "password"}
-                          {...form.register('password')} // ✅ Registra + valida live
+                          {...form.register('password')}
                           aria-invalid={!!form.formState.errors.password}
                         />
-                        {form.formState.errors.password && (
-                          <p className="text-destructive text-sm mt-1">
-                            {form.formState.errors.password.message}
-                          </p>
-                        )}
                           <Button
                             type="button"
                             variant="ghost"
@@ -250,6 +237,9 @@ export default function LoginPage() {
                             </span>
                           </Button>
                       </div>
+                        {form.formState.errors.password && (
+  <p className="text-destructive text-sm mt-1"> {form.formState.errors.password.message}</p>
+)}
                     </div>
                   )}
                   <Button type="submit" className="w-full" disabled={isAuthPending}>
@@ -261,7 +251,7 @@ export default function LoginPage() {
                   <div className="text-center text-sm">
                     <button
                       type="button"
-                      onClick={() => setMode(mode === "login" ? "magic_link" : "login")}
+                      onClick={() => handleModeChange(mode === "login" ? "magic_link" : "login")}
                       className="underline underline-offset-4"
                     >
                       {dynamicText.switchMode}
@@ -283,7 +273,7 @@ export default function LoginPage() {
                   {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
                   <button
                     type="button"
-                    onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+                    onClick={() => handleModeChange(mode === "signup" ? "login" : "signup")}
                     className="underline underline-offset-4"
                   >
                     {mode === "signup" ? "Login" : "Sign up"}
