@@ -206,18 +206,31 @@ import { Link, NavLink } from "react-router";
 //   )
 // }
 
-const navbarElements = [
+const navbar:{
+  title:string
+  href:string
+  visible?:boolean
+  auth:boolean
+}[] = [
     {
         title: "Homepage",
         href: "/",
+        auth:false
     },
     {
         title: "About",
         href: "/about",
+        auth:false
     },
     {
         title: "Products",
         href: "/products",
+        auth:false
+    },
+     {
+        title: "Admin",
+        href: "/admin",
+        auth:true
     }
 ]
 
@@ -246,10 +259,9 @@ const Navbar = () => {
         }
     });
 
-    // const handleSignOut = async () => {
-    //     await signOut.mutateAsync();
-    //     navigate("/login");
-    // };
+    const navbarElements= navbar.map(el=>({...el,visible:(!el.auth || (!!el.auth && !!user))}))
+    const navElements = navbarElements.filter((element)=> element.visible);
+    
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
@@ -260,7 +272,7 @@ const Navbar = () => {
                 
    <NavigationMenu>
       <NavigationMenuList className="hidden md:flex gap-1">
-        {navbarElements.map((element) => (
+        {navElements.map((element) => (
           <NavigationMenuItem key={element.href}>
               <NavLink
                 to={element.href}
