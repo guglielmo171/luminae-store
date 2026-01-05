@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
 import { useUpdateUserPasswordOptions } from "@/api/queries/authQueries";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +9,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 export default function UpdatePasswordPage() {
@@ -26,18 +26,38 @@ export default function UpdatePasswordPage() {
       navigate("/");
     }
   });
-
-  const handleSubmit = (fd:FormData) => {
-    const password=fd.get("password");
-    const confirmPassword=fd.get("confirmPassword");
+type FormState=
+|{
+  error:string,
+  data:{
+    password:string,
+    confirmPassword:string
+  }
+}|{
+  error:null
+}|null
+  const handleSubmit = (prevData:FormState,fd:FormData) => {
+    console.log('prevData',prevData);
+    
+    const password=fd.get("password") as string;
+    const confirmPassword=fd.get("confirmPassword") as string;
     
     if (password !== confirmPassword) {
       // alert("Passwords do not match!");
-      toast.error("Credenziali errate.");
-      return;
+      // toast.error("Le password non coincidono!");
+      return {
+        error:"Le password non coincidono!",
+        data:{
+          password,
+          confirmPassword
+        }
+      };
     }
     updatePassword.mutate(password as string);    
+    return {error:null}
   };
+
+  const [formState,formAction]=useActionState(handleSubmit,null)
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
@@ -50,7 +70,7 @@ export default function UpdatePasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={handleSubmit} className="grid gap-6">
+            <form action={formAction} className="grid gap-6" noValidate>
               <div className="grid gap-2">
                 <Label htmlFor="password">New Password</Label>
                 <div className="relative">
@@ -58,6 +78,7 @@ export default function UpdatePasswordPage() {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    defaultValue={formState?.data?.password}
                     required
                   />
                   <Button
@@ -81,9 +102,11 @@ export default function UpdatePasswordPage() {
                   id="confirmPassword"
                   name="confirmPassword"
                   type={showPassword ? "text" : "password"}
+                  defaultValue={formState?.data?.confirmPassword}
                   required
                 />
               </div>
+              {formState?.error && <small className="text-destructive">{formState.error}</small>}
               <Button type="submit" className="w-full" disabled={updatePassword.isPending}>
                 {updatePassword.isPending ? "Updating..." : "Update Password"}
               </Button>

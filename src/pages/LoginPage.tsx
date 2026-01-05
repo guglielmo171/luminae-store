@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
-
-
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
 import { authService } from "@/api/services/authApi"
+import { authSchema, type AuthFormData } from "@/api/types/Product.interface"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
@@ -38,10 +39,30 @@ const socialProviders = [
   }
 ]
 
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [mode, setMode] = useState<"login" | "signup" | "magic_link" | "forgot_password">("login")
   const navigate = useNavigate()
+  const form = useForm<AuthFormData>({
+    resolver: zodResolver(authSchema),
+    defaultValues: { 
+      email: '', 
+      password: '', 
+      mode: "login" 
+    },
+    mode: "onBlur",       // Valida prima volta solo al click
+    reValidateMode: 'onChange', // Rimuove l'errore mentre correggi
+  });
+
+  const {errors} = form.formState;
+  // console.log('FORM ERRORS', errors);
+
+const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_password") => {
+  setMode(newMode); 
+  form.setValue('mode', newMode);
+  form.clearErrors(); 
+}
 
   const {mutate:signInWithMagicLink,isPending:isSignInWithMagicLinkPending} = useMutation({
     mutationFn: authService.signInWithMagicLink,
@@ -52,6 +73,8 @@ export default function LoginPage() {
   const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
     ...useSignInWithPasswordOptions(),
     onSuccess:()=>{
+      form.reset(); 
+      toast.success('Logged in successfully!');
       navigate("/")
     }
   })
@@ -59,32 +82,37 @@ export default function LoginPage() {
     ...useSignUpOptions(),
     onSuccess:()=>{
       toast.success("Account created! Please check your email to verify your account.")
-      setMode("login")
+      handleModeChange("login")
+
     }
   })
   const {mutate:resetPassword,isPending:isResetPasswordPending} = useMutation({
     ...useResetPasswordOptions(),
     onSuccess:()=>{
       toast.success("Password reset link sent to your email!")
-      setMode("login")
+      handleModeChange("login")
     }
   })
 
-  const handleActionSubmit= async (formData:FormData)=>{
-    const data = Object.fromEntries(formData.entries())
-    const email=data.email as string
-    const password=data.password as string
-    console.log('form data',data);
-      if (mode === "magic_link") {
-        signInWithMagicLink(email)
-      } else if (mode === "signup") {
-         signUp({ email, password })
-      } else if (mode === "forgot_password") {
-          resetPassword(email)
-      } else {
-         signInWithPassword({ email, password })
-      }
+
+  const onSubmit:SubmitHandler<AuthFormData>= (data)=>{
+    const { email, password } = data;
+
+    switch (mode) {
+    case 'login':
+      signInWithPassword({ email, password:password! });
+      break;
+    case 'magic_link':
+      signInWithMagicLink(email);
+      break;
+    case 'signup':
+      signUp({ email, password:password! });
+      break;
+    case 'forgot_password':
+      resetPassword(email);
+      break;
   } 
+  }
 
   const dynamicText={
     title:mode === "magic_link"
@@ -132,17 +160,22 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form  action={handleActionSubmit}>
+              <form  onSubmit={form.handleSubmit(onSubmit)} noValidate>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
-                      name="email"
                       placeholder="m@example.com"
-                      required
+                      {...form.register('email')}
+                      aria-invalid={!!form.formState.errors.email}
                     />
+                 {errors.email && (
+                <small className="text-destructive">
+                  {errors.email.message}
+                </small>
+              )}
                   </div>
                   {mode !== "magic_link" && mode !== "forgot_password" && (
                     <div className="grid gap-2">
@@ -151,7 +184,7 @@ export default function LoginPage() {
                         {mode === "login" && (
                             <button
                               type="button"
-                              onClick={() => setMode("forgot_password")}
+                              onClick={() => handleModeChange("forgot_password")}
                               className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                             >
                               Forgot your password?
@@ -161,10 +194,9 @@ export default function LoginPage() {
                       <div className="relative">
                         <Input
                           id="password"
-                          name="password"
                           type={showPassword ? "text" : "password"}
-                          required
-                          
+                          {...form.register('password')}
+                          aria-invalid={!!form.formState.errors.password}
                         />
                           <Button
                             type="button"
@@ -183,6 +215,11 @@ export default function LoginPage() {
                             </span>
                           </Button>
                       </div>
+                         {errors.password && (
+                <small className="text-destructive">
+                  {errors.password.message}
+                </small>
+              )}
                     </div>
                   )}
                   <Button type="submit" className="w-full" disabled={isAuthPending}>
@@ -194,7 +231,7 @@ export default function LoginPage() {
                   <div className="text-center text-sm">
                     <button
                       type="button"
-                      onClick={() => setMode(mode === "login" ? "magic_link" : "login")}
+                      onClick={() => handleModeChange(mode === "login" ? "magic_link" : "login")}
                       className="underline underline-offset-4"
                     >
                       {dynamicText.switchMode}
@@ -216,7 +253,7 @@ export default function LoginPage() {
                   {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
                   <button
                     type="button"
-                    onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+                    onClick={() => handleModeChange(mode === "signup" ? "login" : "signup")}
                     className="underline underline-offset-4"
                   >
                     {mode === "signup" ? "Login" : "Sign up"}
