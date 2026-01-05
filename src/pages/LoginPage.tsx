@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
-import { useForm } from 'react-hook-form'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
 import { authService } from "@/api/services/authApi"
 import { authSchema, type AuthFormData } from "@/api/types/Product.interface"
@@ -95,7 +95,7 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
   })
 
 
-  const onSubmit= (data:AuthFormData)=>{
+  const onSubmit:SubmitHandler<AuthFormData>= (data)=>{
     const { email, password } = data;
 
     switch (mode) {
