@@ -65,7 +65,7 @@ export default function LoginPage() {
 
   // [DEBUG] useForm:
 useEffect(() => {
-  const subscription = form.watch((value, { name }) => {
+  const subscription = form.watch((_, __) => {
     // console.log('FIELD CHANGE:', name, value);
   });
   return () => subscription.unsubscribe();
