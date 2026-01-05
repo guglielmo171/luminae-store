@@ -8,12 +8,16 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
+import { useForm } from 'react-hook-form'
+
 
 
 import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
 import { authService } from "@/api/services/authApi"
+import { authSchema, type AuthFormData } from "@/api/types/Product.interface"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
@@ -38,10 +42,21 @@ const socialProviders = [
   }
 ]
 
+// interface FormState{ errors: string[] | null, formData?:Partial<FormDataState> }
+// interface FormDataState{
+//   email:string,
+//   password:string
+// }
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [mode, setMode] = useState<"login" | "signup" | "magic_link" | "forgot_password">("login")
   const navigate = useNavigate()
+  const form = useForm<AuthFormData>({
+  resolver: zodResolver(authSchema), // Collega Zod
+  defaultValues: { email: '', password: '' }, // Persistenza iniziale
+  reValidateMode:"onBlur"
+});
 
   const {mutate:signInWithMagicLink,isPending:isSignInWithMagicLinkPending} = useMutation({
     mutationFn: authService.signInWithMagicLink,
@@ -52,6 +67,8 @@ export default function LoginPage() {
   const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
     ...useSignInWithPasswordOptions(),
     onSuccess:()=>{
+      form.reset(); // ✅ Solo qui
+      toast.success('Logged in successfully!');
       navigate("/")
     }
   })
@@ -70,21 +87,61 @@ export default function LoginPage() {
     }
   })
 
-  const handleActionSubmit= async (formData:FormData)=>{
-    const data = Object.fromEntries(formData.entries())
-    const email=data.email as string
-    const password=data.password as string
-    console.log('form data',data);
-      if (mode === "magic_link") {
-        signInWithMagicLink(email)
-      } else if (mode === "signup") {
-         signUp({ email, password })
-      } else if (mode === "forgot_password") {
-          resetPassword(email)
-      } else {
-         signInWithPassword({ email, password })
-      }
-  } 
+  const onSubmit= (data:AuthFormData)=>{
+    const { email, password } = data;
+    switch (mode) {
+    case 'login':
+      signInWithPassword({ email, password }); // Auto: isPending, onSuccess
+      break;
+    case 'magic_link':
+      signInWithMagicLink(email);
+      break;
+    case 'signup':
+      signUp({ email, password });
+      break;
+    case 'forgot_password':
+      resetPassword(email);
+      break;
+  }
+  }
+
+// const handleActionSubmit= async (prevState:(FormState|null),formData:FormData)=>{
+//     const {email,password} = Object.fromEntries(formData.entries()) as unknown as FormDataState;
+//     const errors:FormState["errors"]=[]
+
+//     if(!email.includes("@")){
+//       errors.push("Email not well formatted")
+//     }
+
+//     if(errors.length > 0){
+//        return {
+//         errors,
+//         formData:{
+//           email,
+//           password
+//         }
+//       }
+//     }
+
+//     console.log('prevState',prevState);
+    
+//     console.log('form data',{email,password});
+//       if (mode === "magic_link") {
+//         signInWithMagicLink(email)
+//       } else if (mode === "signup") {
+//          signUp({ email, password })
+//       } else if (mode === "forgot_password") {
+//           resetPassword(email)
+//       } else {
+//          signInWithPassword({ email, password })
+//       }
+
+//      return {
+//       errors:null
+//      };
+//   } 
+
+  // const [state,action]=useActionState(handleActionSubmit,null)
 
   const dynamicText={
     title:mode === "magic_link"
@@ -132,17 +189,23 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form  action={handleActionSubmit}>
+              <form  onSubmit={form.handleSubmit(onSubmit)} noValidate>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
-                      name="email"
                       placeholder="m@example.com"
-                      required
+                      {...form.register('email')} // ✅ Registra + valida live
+                      aria-invalid={!!form.formState.errors.email}
                     />
+                     {form.formState.errors.email && (
+                          <p className="text-destructive text-sm mt-1">
+                            {form.formState.errors.email.message}
+                          </p>
+                        )}
+                    {/* {state?.errors && state.errors.map(err=>(<small key={err} style={{color:'red'}}>{err}</small>))} */}
                   </div>
                   {mode !== "magic_link" && mode !== "forgot_password" && (
                     <div className="grid gap-2">
@@ -161,11 +224,15 @@ export default function LoginPage() {
                       <div className="relative">
                         <Input
                           id="password"
-                          name="password"
                           type={showPassword ? "text" : "password"}
-                          required
-                          
+                          {...form.register('password')} // ✅ Registra + valida live
+                          aria-invalid={!!form.formState.errors.password}
                         />
+                        {form.formState.errors.password && (
+                          <p className="text-destructive text-sm mt-1">
+                            {form.formState.errors.password.message}
+                          </p>
+                        )}
                           <Button
                             type="button"
                             variant="ghost"
