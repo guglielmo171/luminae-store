@@ -53,7 +53,6 @@ export default function LoginPage() {
     },
     mode: "onBlur",       // Valida prima volta solo al click
     reValidateMode: 'onChange', // Rimuove l'errore mentre correggi
-    shouldUnregister:false
   });
 
   const {errors} = form.formState;
