@@ -10,11 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useForm } from 'react-hook-form'
-
-
-
 import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
 import { authService } from "@/api/services/authApi"
 import { authSchema, type AuthFormData } from "@/api/types/Product.interface"
@@ -42,11 +39,6 @@ const socialProviders = [
   }
 ]
 
-// interface FormState{ errors: string[] | null, formData?:Partial<FormDataState> }
-// interface FormDataState{
-//   email:string,
-//   password:string
-// }
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -59,24 +51,13 @@ export default function LoginPage() {
       password: '', 
       mode: "login" 
     },
-    mode: 'onBlur',       // Valida prima volta solo al click
+    mode: "onBlur",       // Valida prima volta solo al click
     reValidateMode: 'onChange', // Rimuove l'errore mentre correggi
+    shouldUnregister:false
   });
 
-  // [DEBUG] useForm:
-useEffect(() => {
-  const subscription = form.watch((_, __) => {
-    // console.log('FIELD CHANGE:', name, value);
-  });
-  return () => subscription.unsubscribe();
-}, [form.watch]);
-
-useEffect(() => {
-  console.log('ERRORS UPDATE:', form.formState.errors);
-}, [form.formState.errors]);
-
-
-
+  const {errors} = form.formState;
+  // console.log('FORM ERRORS', errors);
 
 const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_password") => {
   setMode(newMode); 
@@ -113,8 +94,6 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
       handleModeChange("login")
     }
   })
-
-  console.log('FORM ERRORS', form.formState.errors);
 
 
   const onSubmit= (data:AuthFormData)=>{
@@ -193,11 +172,11 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
                       {...form.register('email')}
                       aria-invalid={!!form.formState.errors.email}
                     />
-                     {form.formState.errors.email && (
-                          <p className="text-destructive text-sm mt-1">
-                            {form.formState.errors.email.message}
-                          </p>
-                        )}
+                 {errors.email && (
+                <small className="text-destructive">
+                  {errors.email.message}
+                </small>
+              )}
                   </div>
                   {mode !== "magic_link" && mode !== "forgot_password" && (
                     <div className="grid gap-2">
@@ -237,9 +216,11 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
                             </span>
                           </Button>
                       </div>
-                        {form.formState.errors.password && (
-  <p className="text-destructive text-sm mt-1"> {form.formState.errors.password.message}</p>
-)}
+                         {errors.password && (
+                <small className="text-destructive">
+                  {errors.password.message}
+                </small>
+              )}
                     </div>
                   )}
                   <Button type="submit" className="w-full" disabled={isAuthPending}>
