@@ -33,6 +33,8 @@ export default function ProfilePage() {
       navigate("/");
     }
   });
+
+
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -133,7 +135,7 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold truncate max-w-[250px]">{user.email}</h2>
                 <div className="flex items-center justify-center gap-2 mt-1">
                   <Badge variant="secondary" className="font-normal text-xs">
-                    {user.role || "User"}
+                    {user?.profile_role}
                   </Badge>
                   {user.app_metadata?.provider && (
                     <Badge variant="outline" className="font-normal text-xs">

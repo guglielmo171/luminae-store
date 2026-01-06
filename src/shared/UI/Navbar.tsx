@@ -210,27 +210,32 @@ const navbar:{
   title:string
   href:string
   visible?:boolean
+  role?:"User"|"Admin"
   auth:boolean
 }[] = [
     {
         title: "Homepage",
         href: "/",
-        auth:false
+        auth:false,
+        role:"User"
     },
     {
         title: "About",
         href: "/about",
-        auth:false
+        auth:false,
+        role:"User"
     },
     {
         title: "Products",
         href: "/products",
-        auth:false
+        auth:false,
+        role:"User"
     },
      {
         title: "Admin",
         href: "/admin",
-        auth:true
+        auth:true,
+        role:"Admin"
     }
 ]
 
@@ -259,7 +264,12 @@ const Navbar = () => {
         }
     });
 
-    const navbarElements= navbar.map(el=>({...el,visible:(!el.auth || (!!el.auth && !!user))}))
+    const navbarElements= navbar.map(el=>{
+      const isVisible= ((!!el.auth && el?.role === "Admin") && (!!user && user?.profile_role === "Admin"))
+      || (!!el.auth && !!user && el?.role !== "Admin") 
+      || !el.auth;
+      return {...el,visible:isVisible}
+    })
     const navElements = navbarElements.filter((element)=> element.visible);
     
     return (
