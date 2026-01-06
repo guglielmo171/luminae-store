@@ -18,12 +18,11 @@ import {
 import { Link } from "react-router";
 
 const ProductItem = ({product}: {product: Product}) => {
-  console.log('product',product.id, product);
   
   return (
        <Card key={product.id} className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 flex flex-col">
                 <CardHeader className="relative">
-                  <div className="absolute top-4 right-4 z-[5]">
+                  <div className="absolute top-4 right-4 z-5">
                     <CardAction>
                       <Button variant="ghost" size="icon" className="rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
                         <Heart className="size-4 hover:fill-destructive hover:text-destructive" />
@@ -49,7 +48,7 @@ const ProductItem = ({product}: {product: Product}) => {
                   
                 </CardHeader>
                 
-                <CardContent className="flex-grow">
+                <CardContent className="grow">
                   {/* Space for additional info if needed */}
                    <Link to={`/products/${product.id}`}>
                    <Button className="gap-2 shadow-sm transition-all active:scale-95 group/btn">

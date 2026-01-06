@@ -55,7 +55,7 @@ const RootLayout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Toaster richColors />
+      <Toaster richColors closeButton={true} />
       <main className="flex-grow">
         {navigation.state === "loading" && (
           <div className="flex items-center justify-center gap-4 py-8">
