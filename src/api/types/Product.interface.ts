@@ -10,6 +10,7 @@ export interface Product {
   images: string[];
 }
 
+export type ProductUpdateDto= Pick<Product,"title"|"price"|"description"|"images"> & {categoryId:number} 
 
 
 const emailSchema = z.string().min(1, "L'email è richiesta").email("Email non valida");
