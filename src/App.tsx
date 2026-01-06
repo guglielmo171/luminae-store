@@ -11,6 +11,7 @@ import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { handleGlobalError } from './api/utils/errorHandler';
 import AdminLayout, { adminLoader } from './pages/admin/AdminLayout';
+import AdminProductsPage from './pages/admin/products/AdminProductsPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 export const queryClient = new QueryClient({
   defaultOptions:{
@@ -47,7 +48,9 @@ function App() {
   ]},
   {path:"/admin",loader:adminLoader(queryClient),element:<AdminLayout />,children:[
 
-    {path:"",element:<>Prima page admin</>}
+  {path:"",element:<>Prima page admin</>},
+    {path:"products", element:<AdminProductsPage />},
+    {path:"categories", element:<h1>Categorie</h1>},
     ]}
 ]);
 

@@ -1,19 +1,5 @@
-import { useState } from "react";
-import { Outlet, NavLink, Link, redirect } from "react-router";
-import { QueryClient, useQuery } from "@tanstack/react-query";
 import { authQueryOptions } from "@/api/queries/authQueries";
-import {
-  LayoutDashboard,
-  Package,
-  Users,
-  Settings,
-  LogOut,
-  Menu,
-  ShoppingBag,
-  X,
-  Search
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,8 +9,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { QueryClient, useQuery } from "@tanstack/react-query";
+import {
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Package,
+  Search,
+  ShoppingBag,
+  X
+} from "lucide-react";
+import { useState } from "react";
+import { Link, NavLink, Outlet, redirect } from "react-router";
+import { Toaster } from "sonner";
 
 
 export const adminLoader = (queryClient: QueryClient) => async () => {
@@ -49,13 +48,15 @@ const AdminLayout = () => {
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
     { icon: Package, label: "Products", href: "/admin/products" },
-    { icon: ShoppingBag, label: "Orders", href: "/admin/orders" },
-    { icon: Users, label: "Customers", href: "/admin/customers" },
-    { icon: Settings, label: "Settings", href: "/admin/settings" },
+    { icon: ShoppingBag, label: "Categories", href: "/admin/categories" },
+    // { icon: Users, label: "Customers", href: "/admin/customers" },
+    // { icon: Settings, label: "Settings", href: "/admin/settings" },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      <Toaster richColors closeButton={true} />
+
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
