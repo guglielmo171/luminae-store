@@ -25,7 +25,8 @@ function App() {
   const router = createBrowserRouter([
    
   { path: "/", element: <RootLayout />, loader: rootLoader(queryClient), children:[
-     {
+    {path:"",element:<HomePage />},
+    {
       path: "login",
       element: <LoginPage />,
     },
@@ -37,7 +38,6 @@ function App() {
       path:"update-password",
       element:<UpdatePasswordPage />
     },
-    {path:"",element:<HomePage />},
     {path:"products",element:<ProductsPage />
       ,loader:productsLoader
     },
