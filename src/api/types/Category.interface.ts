@@ -4,3 +4,6 @@ export interface Category {
   image: string;
   slug: string;
 }
+
+
+export type CategoryCreateReq= Omit<Category,"id"|"slug">
