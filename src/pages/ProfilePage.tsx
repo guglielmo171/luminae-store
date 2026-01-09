@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   Activity,
   LogOut,
