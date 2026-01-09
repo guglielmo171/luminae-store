@@ -88,7 +88,7 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
 
             <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select name="category" defaultValue={loadedData?.category.id.toString()}>
+                <Select name="category" defaultValue={loadedData?.category?.id?.toString()}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                     </SelectTrigger>

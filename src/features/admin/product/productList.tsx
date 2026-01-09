@@ -45,7 +45,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
   const products = data?.pages.flatMap((page) => page) || [];
   
   const filteredProducts = products.filter(product => 
-    product.title.toLowerCase().includes(searchTerm.toLowerCase())
+    product?.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
      let productListContent;
@@ -156,7 +156,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete the product
-                        <strong> "{productToDelete?.title}"</strong> and all associated data.
+                        {productToDelete && <strong> "{productToDelete.title}"</strong>} and all associated data.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
