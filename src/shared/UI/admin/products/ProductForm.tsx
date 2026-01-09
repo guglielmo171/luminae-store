@@ -28,7 +28,7 @@ import { toast } from "sonner";
 
 const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: Product,loadedCategories?:Category[],closeSheet:()=>void}) => {
     const [image,setImage]=useState<string|undefined>(loadedData?.images?.[0])
-    console.log('product',loadedData);
+    // console.log('product',loadedData);
     
     const {mutate:updateMutate,isPending:isUpdatePending} =useMutation({
         mutationFn:productsService.updateProduct,

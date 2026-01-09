@@ -1,18 +1,7 @@
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { createProductQueryOptions, createProductsQueryOptions } from "@/api/queries/productQueries";
 import { createCategoriesQueryOptions } from "@/api/queries/categoryQueries";
+import { createProductQueryOptions } from "@/api/queries/productQueries";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -20,12 +9,42 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useSearchParams } from "react-router";
 import ProductForm from "@/shared/UI/admin/products/ProductForm";
+import { useSuspenseQueries, type UseSuspenseQueryResult } from "@tanstack/react-query";
+import { Plus, Search } from "lucide-react";
+import { useSearchParams } from "react-router";
 
-import { Suspense, useState } from "react";
-import CategoryFilters from "@/features/product/CategoriesFilter";
+import type { Category } from "@/api/types/Category.interface";
+import type { Product } from "@/api/types/Product.interface";
 import { Input } from "@/components/ui/input";
+import ProductList from "@/features/admin/product/productList";
+import CategoryFilters from "@/features/product/CategoriesFilter";
+import { Suspense, useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
+
+const ProductFormContainer = ({productId,closeSheet}:{
+  productId?: string | null;
+  closeSheet: () => void;
+})=>{
+  const result: [
+    UseSuspenseQueryResult<Category[],Error>,
+    UseSuspenseQueryResult<Product,Error> | undefined,
+  ]= useSuspenseQueries({
+    queries:[
+      createCategoriesQueryOptions(),
+      ...(productId ? [createProductQueryOptions({id:productId})] : [])
+    ]
+  })
+
+  const [categories,product]=result
+  
+  return <ProductForm 
+  closeSheet={closeSheet} 
+  loadedCategories={categories.data} 
+  loadedData={product?.data} />
+}
+
+
 
 const AdminProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -34,16 +53,6 @@ const AdminProductsPage = () => {
   
   const selectedProductId = searchParams.get("productId");
   const isSheetOpen = searchParams.has("productId") || searchParams.has("create");
-
-  const {data:product}=useQuery({
-    ...createProductQueryOptions({id:selectedProductId!}),
-    enabled:!!selectedProductId,
-  })
-
-
-  const { data: categories } = useQuery({...createCategoriesQueryOptions(),
-    enabled: isSheetOpen 
-  });
 
   const openCreateSheet = () => {
     setSearchParams({ create: "true" });
@@ -57,92 +66,6 @@ const AdminProductsPage = () => {
     setSearchParams({});
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage,isPending } =
-    useInfiniteQuery(createProductsQueryOptions({ categoryId: selectedCategoryId }));
-
-  const products = data?.pages.flatMap((page) => page) || [];
-  
-  const filteredProducts = products.filter(product => 
-    product.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  let productListContent;
-
-
-  if(isPending){
-    productListContent=(<tr>
-                   <td colSpan={5} className="py-8 text-center text-gray-500">
-                      Loading products...
-                   </td>
-                </tr>)
-  }
-  if(data){
-    productListContent=(<>
-     {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-4">
-                    <div className="h-10 w-10 rounded-md bg-gray-100 border border-gray-200 overflow-hidden">
-                      <img
-                        src={product.images[0]}
-                        alt={product.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 font-medium text-gray-900">
-                    {product.title}
-                  </td>
-                  <td className="py-3 px-4">
-                    <Badge variant="secondary" className="font-normal">
-                      {product.category?.name || 'Uncategorized'} 
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4 text-gray-700">
-                    ${product.price.toFixed(2)}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => openEditSheet(product.id)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
-                            <Trash className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
-    </>)
-  }
-  
-  if(data && filteredProducts.length === 0){
-     productListContent=(<tr>
-                   <td colSpan={5} className="py-8 text-center text-gray-500">
-                      {searchTerm ? "No products match your search. Try loading more data" : "No products found."}
-                   </td>
-                </tr>)
-  }
-
-  let productContent;
-
-  if(selectedProductId && product && categories){
-    productContent=<ProductForm closeSheet={closeSheet} loadedData={product ?? undefined} loadedCategories={categories ?? []} />
-  } 
-
-  // Create Mode: Wait for categories to load
-  if(isSheetOpen && !selectedProductId && categories){
-    productContent = <ProductForm closeSheet={closeSheet} loadedCategories={categories ?? []} />
-  }
 
   return (
     <div className="space-y-6">
@@ -181,39 +104,13 @@ const AdminProductsPage = () => {
               </Suspense>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 text-gray-700 font-medium border-b border-gray-200">
-              <tr>
-                <th className="py-3 px-4 w-[80px]">Image</th>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Price</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">{productListContent}</tbody>
-          </table>
-        </div>
-        
-        {/* Pagination / Load More Footer */}
-        {data && (  <div className="border-t border-gray-200 p-4 bg-gray-50 flex justify-center">
-            {(hasNextPage) ? (
-                 <Button 
-                    variant="outline" 
-                    onClick={() => fetchNextPage()} 
-                    disabled={isFetchingNextPage}
-                 >
-                    {isFetchingNextPage ? "Loading..." : "Load More Products"}
-                 </Button>
-            ) : (
-                <p className="text-sm text-muted-foreground">No more products to load</p>
-            )}
-        </div>)}
-      
-      </div>
-
+      <Suspense fallback={<>
+                   <div className="py-8 text-center text-gray-500">
+                      Loading products...
+                   </div>
+                </>}>
+        <ProductList  selectedCategoryId={selectedCategoryId} onOpenEditSheet={openEditSheet} searchTerm={searchTerm} />
+      </Suspense>
 
       <Sheet open={isSheetOpen} onOpenChange={(open) => !open && closeSheet()}>
         <SheetContent className="sm:max-w-xl overflow-y-auto">
@@ -230,10 +127,15 @@ const AdminProductsPage = () => {
 
           {/* Form */}
           <div className="py-6">
-             {productContent}
+            <Suspense fallback={<Spinner/>}>
+              <ProductFormContainer 
+              closeSheet={closeSheet} 
+              productId={selectedProductId} />
+            </Suspense>
           </div>
         </SheetContent>
       </Sheet>
+
     </div>
   );
 };
