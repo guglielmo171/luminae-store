@@ -11,3 +11,10 @@ export function createCategoriesQueryOptions() {
     queryFn: () => categoriesService.getCategories(),
   });
 }
+
+export function createCategoryQueryOptions(id: string) {
+  return queryOptions({
+    queryKey: [...categoryQueries.all, id],
+    queryFn: () => categoriesService.getCategoryById(id),
+  });
+}

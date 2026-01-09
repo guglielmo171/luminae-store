@@ -43,4 +43,9 @@ export const productsService = {
       apiClient.post(`/products`,product),
       `createProduct ()`
     ),
+    deleteProduct: (id: string | number) =>
+      handleApiCall(
+        apiClient.delete(`/products/${id}`),
+        `deleteProduct (id: ${id})`
+      ),
 };
