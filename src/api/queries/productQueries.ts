@@ -2,8 +2,9 @@ import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { productsService } from "../services/productsApi";
 
   export const productQueries = {
-  all: (categoryId?: number | null) => ["products", { categoryId }] as const,
-  related: (id: number | string) => ["products", "related", id] as const,
+  base: ["products"] as const,
+  all: (categoryId?: number | null) => [...productQueries.base, { categoryId }] as const,
+  related: (id: number | string) => [...productQueries.base, "related", id] as const,
 };
 
 export function createProductsQueryOptions({ categoryId }: { categoryId?: number | null }) {

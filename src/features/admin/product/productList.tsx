@@ -4,10 +4,43 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { productsService } from '@/api/services/productsApi';
+import { queryClient } from '@/App';
+import { productQueries } from '@/api/queries/productQueries';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCategoryId?: number | null,searchTerm:string,onOpenEditSheet: (id: number) => void}) => {
 
      const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(createProductsQueryOptions({ categoryId: selectedCategoryId }));
+
+  const [productToDelete, setProductToDelete] = useState<{id: number, title: string} | null>(null);
+  
+  const { mutate: deleteProduct } = useMutation({
+    mutationFn: productsService.deleteProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productQueries.base });
+      toast.success("Product deleted successfully");
+      setProductToDelete(null);
+    },
+  });
+
+  const handleDelete = () => {
+    if (productToDelete) {
+      deleteProduct(productToDelete.id);
+    }
+  };
 
   const products = data?.pages.flatMap((page) => page) || [];
   
@@ -63,7 +96,10 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem 
+                          className="text-red-600 focus:text-red-600 cursor-pointer"
+                          onClick={() => setProductToDelete({id: product.id, title: product.title})}
+                        >
                             <Trash className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -114,6 +150,26 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
             )}
         </div>)}
       
+        <AlertDialog open={!!productToDelete} onOpenChange={(open) => !open && setProductToDelete(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the product
+                        <strong> "{productToDelete?.title}"</strong> and all associated data.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                        onClick={handleDelete}
+                        className="bg-red-600 hover:bg-red-700"
+                    >
+                        Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
       </div>
   )
 }
