@@ -10,6 +10,9 @@ import ProfilePage from './pages/ProfilePage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { handleGlobalError } from './api/utils/errorHandler';
+import AdminLayout, { adminLoader } from './pages/admin/AdminLayout';
+import AdminProductsPage from './pages/admin/products/AdminProductsPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
 export const queryClient = new QueryClient({
   defaultOptions:{
     mutations:{
@@ -22,29 +25,33 @@ function App() {
   const router = createBrowserRouter([
    
   { path: "/", element: <RootLayout />, loader: rootLoader(queryClient), children:[
-     {
-      path: "/login",
+    {path:"",element:<HomePage />},
+    {
+      path: "login",
       element: <LoginPage />,
     },
     {
-      path:"/profile",
+      path:"profile",
       element:<ProfilePage />
     },
     {
-      path:"/update-password",
+      path:"update-password",
       element:<UpdatePasswordPage />
     },
-    {path:"",element:<HomePage />},
     {path:"products",element:<ProductsPage />
       ,loader:productsLoader
     },
-    // {path:"products/:id",loader:productLoader,children[
-      
-    // ]},
     {path:"products/:id",element:<ProductPage />},
     {path:"about",element:<AboutPage />},
+    {path:"unauthorized", element:<UnauthorizedPage />},
     {path:"*",element:<h1>404</h1>}
   ]},
+  {path:"/admin",loader:adminLoader(queryClient),element:<AdminLayout />,children:[
+
+  {path:"",element:<>Prima page admin</>},
+    {path:"products", element:<AdminProductsPage />},
+    {path:"categories", element:<h1>Categorie</h1>},
+    ]}
 ]);
 
 return <QueryClientProvider client={queryClient}><RouterProvider router={router} /></QueryClientProvider>;

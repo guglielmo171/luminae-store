@@ -206,18 +206,36 @@ import { Link, NavLink } from "react-router";
 //   )
 // }
 
-const navbarElements = [
+const navbar:{
+  title:string
+  href:string
+  visible?:boolean
+  role?:"User"|"Admin"
+  auth:boolean
+}[] = [
     {
         title: "Homepage",
         href: "/",
+        auth:false,
+        role:"User"
     },
     {
         title: "About",
         href: "/about",
+        auth:false,
+        role:"User"
     },
     {
         title: "Products",
         href: "/products",
+        auth:false,
+        role:"User"
+    },
+     {
+        title: "Admin",
+        href: "/admin",
+        auth:true,
+        role:"Admin"
     }
 ]
 
@@ -246,10 +264,14 @@ const Navbar = () => {
         }
     });
 
-    // const handleSignOut = async () => {
-    //     await signOut.mutateAsync();
-    //     navigate("/login");
-    // };
+    const navbarElements= navbar.map(el=>{
+      const isVisible= ((!!el.auth && el?.role === "Admin") && (!!user && user?.profile_role === "Admin"))
+      || (!!el.auth && !!user && el?.role !== "Admin") 
+      || !el.auth;
+      return {...el,visible:isVisible}
+    })
+    const navElements = navbarElements.filter((element)=> element.visible);
+    
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
@@ -260,7 +282,7 @@ const Navbar = () => {
                 
    <NavigationMenu>
       <NavigationMenuList className="hidden md:flex gap-1">
-        {navbarElements.map((element) => (
+        {navElements.map((element) => (
           <NavigationMenuItem key={element.href}>
               <NavLink
                 to={element.href}

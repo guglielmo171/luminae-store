@@ -1,5 +1,5 @@
 import apiClient from "../axiosClient";
-import type { Product } from "../types/Product.interface";
+import type { Product, ProductUpdateDto } from "../types/Product.interface";
 import { handleApiCall } from "../utils/apiUtils";
 
 export const productsService = {
@@ -30,5 +30,17 @@ export const productsService = {
       apiClient.get<Product[]>(`/products/${id}/related`),
       `getRelatedProducts (id: ${id})`,
       [] // Fallback: array vuoto se fallisce
+    ),
+
+    updateProduct: ({product,id}: {product:ProductUpdateDto,id:string}) => 
+       handleApiCall(
+      apiClient.put<ProductUpdateDto>(`/products/${id}`,product),
+      `updateProduct (id: ${id})`
+    ),
+
+    createProduct: (product:ProductUpdateDto) => 
+       handleApiCall(
+      apiClient.post(`/products`,product),
+      `createProduct ()`
     ),
 };

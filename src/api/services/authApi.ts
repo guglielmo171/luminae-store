@@ -65,10 +65,20 @@ export const authService = {
       "getUser",
       { user: null } as any
     ),
-
   userData: async () => {
-    const data = await authService.userDataDetail();
-    return data?.user;
+    const [data,profile] = await Promise.all([
+        authService.userDataDetail(),
+        supabase.from('profiles').select().single(),
+      ]);
+
+    // console.log('profile ',profile);
+      if(!data?.user){
+        return null;
+      }else{
+        return {...data?.user,profile_role:profile?.data?.role};
+
+      }
+    // return {...data?.user,role:profile?.data?.role};
   },
 
   signOut: () =>
