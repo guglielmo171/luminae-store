@@ -42,7 +42,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
     }
   };
 
-  const products = data?.pages.flatMap((page) => page) || [];
+  const products = data?.pages.flatMap((page) => page.data ) || [];
   
   const filteredProducts = products.filter(product => 
     product?.title?.toLowerCase().includes(searchTerm.toLowerCase())

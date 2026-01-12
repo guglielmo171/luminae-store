@@ -70,7 +70,7 @@ export const productsService = {
     ),
     deleteProduct: (id: string | number) =>
       handleApiCall(
-        apiClient.delete(`/products/${id}`),
+        apiClientRest.delete(`/products/${id}`),
         `deleteProduct (id: ${id})`
       ),
 };
