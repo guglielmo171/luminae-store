@@ -13,10 +13,10 @@ export function createProductsQueryOptions({ categoryId }: { categoryId?: number
     queryFn: async ({ pageParam }:{pageParam?:number}) => {
       console.log('[Query] Fetching with cursor:', pageParam);
       const [response] = await Promise.all([
-        productsService.getProducts({ cursor: pageParam }),
-        // categoryId
-        //   ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId })
-        //   : productsService.getProducts({ cursor: pageParam }),
+        // productsService.getProducts({ cursor: pageParam }),
+        categoryId
+          ? productsService.getProductsByCategory({ cursor: pageParam, catID: categoryId })
+          : productsService.getProducts({ cursor: pageParam }),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
       console.log('[Query] Response:', {
