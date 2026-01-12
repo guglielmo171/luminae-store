@@ -1,11 +1,11 @@
-import apiClient from "../axiosClient";
+import apiClient, { apiClientRest } from "../axiosClient";
 import type { Category, CategoryCreateReq } from "../types/Category.interface";
 import { handleApiCall } from "../utils/apiUtils";
 
 export const categoriesService = {
     getCategories: () => 
         handleApiCall(
-            apiClient.get<Category[]>("/categories"),
+            apiClientRest.get<Category[]>("/categories"),
             "getCategories"
         ),
     getCategoryById: (id: string) =>

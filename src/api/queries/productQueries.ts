@@ -10,19 +10,34 @@ import { productsService } from "../services/productsApi";
 export function createProductsQueryOptions({ categoryId }: { categoryId?: number | null }) {
   return infiniteQueryOptions({
     queryKey: productQueries.all(categoryId),
-    queryFn: async ({ pageParam = 0 }) => {
+    queryFn: async ({ pageParam }:{pageParam?:number}) => {
+      console.log('[Query] Fetching with cursor:', pageParam);
       const [response] = await Promise.all([
-        categoryId
-          ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId })
-          : productsService.getProducts({ page: pageParam as number }),
+        productsService.getProducts({ cursor: pageParam }),
+        // categoryId
+        //   ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId })
+        //   : productsService.getProducts({ cursor: pageParam }),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
+      console.log('[Query] Response:', {
+        productsCount: response.data.length,
+        nextCursor: response.nextCursor,
+        hasNextPage: response.hasNextPage
+      });
       return response;
     },
     staleTime: 5 * 60 * 1000,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _, lastPageParam) =>
-      lastPage.length === 10 ? (lastPageParam as number) + 1 : undefined,
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => {
+      // Se c'è un nextCursor nella risposta, convertilo in numero per la prossima chiamata
+      const nextCursor = lastPage.hasNextPage ? Number(lastPage.nextCursor) : undefined;
+      console.log('[Query] getNextPageParam:', {
+        nextCursor,
+        hasNextPage: lastPage.hasNextPage,
+        rawNextCursor: lastPage.nextCursor
+      });
+      return nextCursor;
+    },
   });
 }
 

@@ -31,10 +31,10 @@ const ProductDetailsContent = ({ id }: { id: string }) => {
 
   const { data: product } = useSuspenseQuery(createProductQueryOptions({id}));
 
-  const { data: relatedProducts } = useSuspenseQuery({
-    ...createRelatedProductsQueryOptions({ id }),
-    select: (products) => products.slice(0, 4),
-  });
+  // const { data: relatedProducts } = useSuspenseQuery({
+  //   ...createRelatedProductsQueryOptions({ id }),
+  //   select: (products) => products.slice(0, 4),
+  // });
 
 
   
@@ -156,7 +156,7 @@ const ProductDetailsContent = ({ id }: { id: string }) => {
       </div>
 
       {/* Related Products */}
-      {relatedProducts && relatedProducts.length > 0 && (
+      {/* {relatedProducts && relatedProducts.length > 0 && (
         <div className="mt-24">
           <div className="mb-10 flex items-end justify-between">
             <div>
@@ -175,7 +175,7 @@ const ProductDetailsContent = ({ id }: { id: string }) => {
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

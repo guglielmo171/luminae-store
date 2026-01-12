@@ -1,14 +1,28 @@
 import type { Category } from "./Category.interface";
 import {z} from "zod"
+// export interface Product {
+//   id: number;
+//   title: string;
+//   slug: string;
+//   price: number;
+//   description: string;
+//   category: ;
+//   images: string[];
+// }
+
 export interface Product {
+  category:Category;
   id: number;
   title: string;
   slug: string;
-  price: number;
   description: string;
-  category: Category;
   images: string[];
+  price: number;
+  creationAt: string;
+  updatedAt: string;
 }
+
+
 
 export type ProductUpdateDto= Pick<Product,"title"|"price"|"description"|"images"> & {categoryId:number} 
 

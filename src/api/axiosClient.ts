@@ -5,6 +5,11 @@ const apiClient : AxiosInstance= axios.create({
       timeout: 10000,
 });
 
+export const apiClientRest : AxiosInstance= axios.create({
+    baseURL: "/api",
+      timeout: 10000,
+});
+
 
 apiClient.interceptors.request.use(config=>{
     const token = localStorage.getItem("token");

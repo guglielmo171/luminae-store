@@ -22,8 +22,9 @@ const ProductsListContent = ({ categoryId }: { categoryId: number | null }) => {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  const allProducts = data.pages.flat();
+  
+  const allProducts = data.pages.map(d=>d.data).flat();
+  console.log(allProducts,'data');
 
 return <ProductList products={allProducts}>
     <div ref={ref} className="mt-12 flex justify-center py-4">
