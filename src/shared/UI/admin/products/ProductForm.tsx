@@ -2,7 +2,7 @@
 import { productQueries } from "@/api/queries/productQueries";
 import { productsService } from "@/api/services/productsApi";
 import type { Category } from "@/api/types/Category.interface";
-import type { Product, ProductUpdateDto } from "@/api/types/Product.interface";
+import type { CreateProductRequest, Product } from "@/api/types/Product.interface";
 import { queryClient } from "@/App";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,22 +34,25 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
         mutationFn:productsService.updateProduct,
         mutationKey:["products","update",loadedData?.id],
         onSuccess(_, {product}) {
+            queryClient.refetchQueries({queryKey:productQueries.base})
             toast.success(`Product ${product.title} updated successfully`)
             closeSheet()
+
         },
         onSettled:()=>{
-                queryClient.invalidateQueries({queryKey:productQueries.all(null)})
+                // queryClient.invalidateQueries({queryKey:productQueries.all(null)})
         }
     })
     const {mutate:createMutate,isPending:isCreatePending} =useMutation({
         mutationFn:productsService.createProduct,
         mutationKey:["products","create"],
            onSuccess(_, product) {
+            queryClient.refetchQueries({queryKey:productQueries.base})
                toast.success(`Product ${product.title} created successfully`)
             closeSheet()
         },
-        onSettled:()=>{
-                queryClient.invalidateQueries({queryKey:productQueries.all(null)})
+        onSettled:async ()=>{
+            await queryClient.invalidateQueries({queryKey:productQueries.all(null)})
         }
     })
 
@@ -59,7 +62,7 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
         const image=fd.get("image") as string
         const images = (!!loadedData?.images) ? [...loadedData?.images,image] : [image]
         // const data = Object.fromEntries(fd.entries())
-        const payload: ProductUpdateDto ={
+        const payload: CreateProductRequest ={
             title:fd.get("title") as string,
             price:parseFloat(fd.get("price") as string),
             categoryId:parseInt(fd.get("category") as string),
@@ -105,7 +108,7 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
 
              <div className="space-y-2">
                 <Label htmlFor="description">Description (Optional)</Label>
-                <Input id="description" name="description" placeholder="Short description of the product" defaultValue={loadedData?.description} />
+                <Input id="description" name="description" placeholder="Short description of the product" defaultValue={loadedData?.description || ""} />
             </div>
 
              <div className="space-y-2">

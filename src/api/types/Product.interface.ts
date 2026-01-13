@@ -10,21 +10,49 @@ import {z} from "zod"
 //   images: string[];
 // }
 
+// export interface Product {
+//   category:Category;
+//   id: number;
+//   title: string;
+//   slug: string;
+//   description: string;
+//   images: string[];
+//   price: number;
+//   creationAt: string;
+//   updatedAt: string;
+// }
+
+
 export interface Product {
-  category:Category;
   id: number;
   title: string;
   slug: string;
-  description: string;
-  images: string[];
   price: number;
-  creationAt: string;
-  updatedAt: string;
+  description: string | null;
+  images: string[];
+  creationAt: Date;
+  updatedAt: Date;
+  category?: {
+      id: number;
+      name: string;
+      slug: string;
+  } | undefined;
 }
 
 
+export type ProductDto = Partial<Product>
 
-export type ProductUpdateDto= Pick<Product,"title"|"price"|"description"|"images"> & {categoryId:number} 
+
+// export type ProductUpdateDto= Pick<Product,"title"|"price"|"description"|"images"> & {categoryId:number} 
+export interface CreateProductRequest {
+  title: string;
+  price: number;
+  description: string;
+  categoryId: number;
+  images: string[];
+}
+
+export type UpdateProductRequest= Partial<CreateProductRequest>
 
 
 const emailSchema = z.string().min(1, "L'email è richiesta").email("Email non valida");

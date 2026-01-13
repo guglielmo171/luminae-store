@@ -20,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCategoryId?: number | null,searchTerm:string,onOpenEditSheet: (id: number) => void}) => {
+const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCategoryId?: number | null,searchTerm:string,onOpenEditSheet: (id: number | undefined) => void}) => {
 
      const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(createProductsQueryOptions({ categoryId: selectedCategoryId }));
@@ -30,7 +30,8 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
   const { mutate: deleteProduct } = useMutation({
     mutationFn: productsService.deleteProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productQueries.base });
+      // queryClient.invalidateQueries({ queryKey: productQueries.base });
+      queryClient.refetchQueries({ queryKey: productQueries.base });
       toast.success("Product deleted successfully");
       setProductToDelete(null);
     },
@@ -65,7 +66,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                   <td className="py-3 px-4">
                     <div className="h-10 w-10 rounded-md bg-gray-100 border border-gray-200 overflow-hidden">
                       <img
-                        src={product.images[0]}
+                        src={product?.images?.[0]}
                         alt={product.title}
                         className="h-full w-full object-cover"
                       />
@@ -80,7 +81,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                     </Badge>
                   </td>
                   <td className="py-3 px-4 text-gray-700">
-                    ${product.price.toFixed(2)}
+                    ${product?.price?.toFixed(2)}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <DropdownMenu>
@@ -92,13 +93,13 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => onOpenEditSheet(product.id)}>
+                        <DropdownMenuItem onClick={() => onOpenEditSheet(product?.id)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           className="text-red-600 focus:text-red-600 cursor-pointer"
-                          onClick={() => setProductToDelete({id: product.id, title: product.title})}
+                          onClick={() => setProductToDelete({id: product.id!, title: product.title!})}
                         >
                             <Trash className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>

@@ -1,5 +1,5 @@
-import apiClient, { apiClientRest } from "../axiosClient";
-import type { Product, ProductUpdateDto } from "../types/Product.interface";
+import { apiClientRest } from "../axiosClient";
+import type { CreateProductRequest, ProductDto, UpdateProductRequest } from "../types/Product.interface";
 import { handleApiCall } from "../utils/apiUtils";
 
 interface ApiResponsePaginated<T>{
@@ -11,26 +11,18 @@ interface ApiResponsePaginated<T>{
 
 export const productsService = {
     getProducts: ({ cursor }: { cursor?: number }) =>
-  {
-    // console.log('[API] getProducts called with cursor:', cursor);
-    // console.log('[API] cursor !== undefined:', cursor !== undefined);
-    // console.log('[API] params will be:', {
-    //   limit: 10,
-    //   ...(cursor !== undefined && { cursor })
-    // });
-
-    return  handleApiCall(
-      apiClientRest.get<ApiResponsePaginated<Product>>("/products", {
+      handleApiCall(
+      apiClientRest.get<ApiResponsePaginated<ProductDto>>("/products", {
         params: {
         // limit: 10,
         ...(cursor !== undefined && { cursor })
       },
       }),
       `getProducts (cursor: ${cursor})`
-    )},
+    ),
  getProductsByCategory: ({cursor,catID: id}: {cursor?:number,catID:string|number}) =>
     handleApiCall(
-      apiClientRest.get<ApiResponsePaginated<Product>>(`/categories/${id}/products`, {
+      apiClientRest.get<ApiResponsePaginated<ProductDto>>(`/categories/${id}/products`, {
        params: {
         // limit: 10,
         ...(cursor !== undefined && { cursor })
@@ -47,27 +39,27 @@ export const productsService = {
   //   ),
   getProductById: (id: string | number) =>
     handleApiCall(
-      apiClientRest.get<Product>(`/products/${id}`),
+      apiClientRest.get<ProductDto>(`/products/${id}`),
       `getProductById (id: ${id})`
     ),
 
 
   getRelatedProducts: (id: string | number) =>
     handleApiCall(
-      apiClientRest.get<Product[]>(`/products/${id}/related`),
+      apiClientRest.get<ProductDto[]>(`/products/${id}/related`),
       `getRelatedProducts (id: ${id})`,
       [] // Fallback: array vuoto se fallisce
     ),
 
-    updateProduct: ({product,id}: {product:ProductUpdateDto,id:string}) => 
+    updateProduct: ({product,id}: {product:UpdateProductRequest,id:string}) => 
        handleApiCall(
-      apiClient.put<ProductUpdateDto>(`/products/${id}`,product),
+        apiClientRest.patch(`/products/${id}`,product),
       `updateProduct (id: ${id})`
     ),
 
-    createProduct: (product:ProductUpdateDto) => 
+    createProduct: (product:CreateProductRequest) => 
        handleApiCall(
-      apiClient.post(`/products`,product),
+        apiClientRest.post<ProductDto>(`/products`,product),
       `createProduct ()`
     ),
     deleteProduct: (id: string | number) =>
