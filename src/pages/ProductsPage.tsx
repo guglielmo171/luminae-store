@@ -7,12 +7,18 @@ import ProductsListContent from "@/features/product/productList";
 import CategoryFilters from "@/features/product/CategoriesFilter";
 import {
   Briefcase,
-  ChevronDown,
   Filter,
   Monitor,
   Watch
 } from "lucide-react";
 import { Suspense, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const skeleton=(
   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -26,8 +32,11 @@ const skeleton=(
             </div>
 )
 
+type SortOption = "latest" | "price-asc" | "price-desc";
+
 const ProductsPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>("latest");
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -61,17 +70,23 @@ const ProductsPage = () => {
 
           <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground font-medium">Sort by:</span>
-            <button className="group flex items-center gap-2 font-bold text-foreground hover:text-primary transition-all">
-              Latest Arrivals 
-              <ChevronDown className="size-4 transition-transform group-hover:translate-y-0.5" />
-            </button>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger className="w-[180px] font-bold text-foreground hover:text-primary transition-all">
+                <SelectValue placeholder="Select sort option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="latest">Latest Arrivals</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <Suspense 
           fallback={skeleton}
         >
-          <ProductsListContent categoryId={selectedCategoryId} />
+          <ProductsListContent categoryId={selectedCategoryId} sortBy={sortBy} />
         </Suspense>
       </main>
 
@@ -129,6 +144,6 @@ export async function loader() {
     queryKey: ["categories"],
     queryFn:categoriesService.getCategories,
   });
-   queryClient.prefetchInfiniteQuery(createProductsQueryOptions({categoryId: null}));
+   queryClient.prefetchInfiniteQuery(createProductsQueryOptions({search:"",categoryId: null, sortField: "creationAt", direction: "backward"}));
   return null;
 }

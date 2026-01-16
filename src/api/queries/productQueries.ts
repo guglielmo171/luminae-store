@@ -3,26 +3,44 @@ import { productsService } from "../services/productsApi";
 
   export const productQueries = {
   base: ["products"] as const,
-  all: (categoryId?: number | null) => [...productQueries.base, { categoryId }] as const,
+  all: (search:string,categoryId?: number | null,sortField?:string,direction?:"forward"|"backward") => [...productQueries.base,{search}, { categoryId }, { sortField }, { direction }] as const,
   related: (id: number | string) => [...productQueries.base, "related", id] as const,
 };
 
-export function createProductsQueryOptions({ categoryId }: { categoryId?: number | null }) {
+export function createProductsQueryOptions({ categoryId,search,sortField,direction }: { categoryId?: number | null,search:string,sortField?:string,direction?:"forward"|"backward" }) {
   return infiniteQueryOptions({
-    queryKey: productQueries.all(categoryId),
-    queryFn: async ({ pageParam = 0 }) => {
+    queryKey: productQueries.all(search,categoryId,sortField,direction),
+    queryFn: async ({ pageParam }:{pageParam?:number}) => {
+      console.log('[Query] Fetching with cursor:', pageParam);
+      console.log('searchparam',search);
+      console.log('sortField',sortField,'direction',direction);
+      
       const [response] = await Promise.all([
+        // productsService.getProducts({ cursor: pageParam }),
         categoryId
-          ? productsService.getProductsByCategory({ page: pageParam as number, id: categoryId })
-          : productsService.getProducts({ page: pageParam as number }),
+          ? productsService.getProductsByCategory({ cursor: pageParam, catID: categoryId ,search,sortField,direction})
+          : productsService.getProducts({ cursor: pageParam ,search,sortField,direction}),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
+      console.log('[Query] Response:', {
+        productsCount: response.data.length,
+        nextCursor: response.nextCursor,
+        hasNextPage: response.hasNextPage
+      });
       return response;
     },
     staleTime: 5 * 60 * 1000,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _, lastPageParam) =>
-      lastPage.length === 10 ? (lastPageParam as number) + 1 : undefined,
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => {
+      // Se c'è un nextCursor nella risposta, convertilo in numero per la prossima chiamata
+      const nextCursor = lastPage.hasNextPage ? Number(lastPage.nextCursor) : undefined;
+      console.log('[Query] getNextPageParam:', {
+        nextCursor,
+        hasNextPage: lastPage.hasNextPage,
+        rawNextCursor: lastPage.nextCursor
+      });
+      return nextCursor;
+    },
   });
 }
 
@@ -42,5 +60,19 @@ export function createRelatedProductsQueryOptions({ id }: { id: number | string 
 }
 
 export async function ensureQueryData({ queryClient }: { queryClient: any }) {
-  return queryClient.ensureQueryData(createProductsQueryOptions({categoryId:null}));
+  return queryClient.ensureQueryData(createProductsQueryOptions({search:"",categoryId:null}));
+}
+
+// Helper function to convert sort option to sortField and direction
+export function getSortParams(sortBy: "latest" | "price-asc" | "price-desc"): { sortField: string; direction: "forward" | "backward" } {
+  switch (sortBy) {
+    case "latest":
+      return { sortField: "creationAt", direction: "backward" };
+    case "price-asc":
+      return { sortField: "price", direction: "forward" };
+    case "price-desc":
+      return { sortField: "price", direction: "backward" };
+    default:
+      return { sortField: "creationAt", direction: "backward" };
+  }
 }

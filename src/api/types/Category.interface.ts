@@ -6,4 +6,12 @@ export interface Category {
 }
 
 
-export type CategoryCreateReq= Omit<Category,"id"|"slug">
+// export type CategoryCreateReq= Omit<Category,"id"|"slug">
+export interface CreateCategoryRequest {
+  name: string;
+  slug?: string | undefined;
+  image?: string | null | undefined;
+}
+export type UpdateCategoryRequest= Partial<CreateCategoryRequest>
+
+

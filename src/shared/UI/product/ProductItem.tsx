@@ -36,7 +36,7 @@ const ProductItem = ({product}: {product: Product}) => {
                     </div>
                   </div>
                   <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary" className="font-semibold">{product.category.name}</Badge>
+                    <Badge variant="secondary" className="font-semibold">{product.category?.name}</Badge>
                     <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
                       <Star className="size-3 fill-amber-400 text-amber-400" />
                       {/* <span>{product.} ({product.reviews})</span> */}

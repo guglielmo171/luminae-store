@@ -1,14 +1,14 @@
+import { queryClient } from "@/App";
+import { categoryQueries } from "@/api/queries/categoryQueries";
+import { categoriesService } from "@/api/services/categoriesService";
+import type { Category, CreateCategoryRequest } from "@/api/types/Category.interface";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Category, CategoryCreateReq } from "@/api/types/Category.interface";
-import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { categoriesService } from "@/api/services/categoriesService";
 import { useState, type ChangeEvent } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { queryClient } from "@/App";
-import { categoryQueries } from "@/api/queries/categoryQueries";
 
 interface CategoryFormProps {
   loadedData?: Category;
@@ -23,32 +23,32 @@ const CategoryForm = ({ loadedData, closeSheet }: CategoryFormProps) => {
   const {mutate:createCategory} = useMutation({
     mutationFn:categoriesService.createCategory,
     mutationKey:["categoryCreate"],
-     onSuccess:()=>{
-        queryClient.invalidateQueries({
+     onSuccess:(data)=>{
+        queryClient.refetchQueries({
             queryKey:categoryQueries.all
         })
-        toast.success("category created successfully")
+        toast.success(`Category "${data.name}" created successfully`)
     }
   })
 
   const {mutate:updateCategory} = useMutation({
     mutationFn:categoriesService.updateCategory,
     mutationKey:["categoryCreate"],
-    onSuccess:()=>{
-        queryClient.invalidateQueries({
+    onSuccess:(data)=>{
+        queryClient.refetchQueries({
             queryKey:categoryQueries.all
         })
-        toast.success("category created successfully")
+        toast.success(`Category "${data.name}" updated successfully`)
     }
   })
 
   const onSubmit = (data: Partial<Category>) => {
     console.log("Submit Category:", data);
     if(loadedData){
-        updateCategory({category:data as CategoryCreateReq,id:loadedData.id})
+        updateCategory({category:data,id:loadedData.id})
     }else{
 
-        createCategory(data as CategoryCreateReq)
+        createCategory(data as CreateCategoryRequest)
     }
     closeSheet();
   };

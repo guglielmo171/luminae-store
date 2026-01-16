@@ -256,7 +256,8 @@ import { useNavigate } from "react-router";
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const { data: user } = useQuery(authQueryOptions.user())
+    const { data: user } = useQuery({...authQueryOptions.user()
+    })
     const {mutate:handleSignOut} = useMutation({
         ...useSignOutOptions(),
         onSuccess:()=>{
@@ -264,13 +265,14 @@ const Navbar = () => {
         }
     });
 
-    const navbarElements= navbar.map(el=>{
+    const navbarElements=navbar.map(el=>{
       const isVisible= ((!!el.auth && el?.role === "Admin") && (!!user && user?.profile_role === "Admin"))
       || (!!el.auth && !!user && el?.role !== "Admin") 
       || !el.auth;
       return {...el,visible:isVisible}
-    })
-    const navElements = navbarElements.filter((element)=> element.visible);
+    }).filter((element)=> element.visible)
+
+   
     
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
@@ -282,7 +284,7 @@ const Navbar = () => {
                 
    <NavigationMenu>
       <NavigationMenuList className="hidden md:flex gap-1">
-        {navElements.map((element) => (
+        {navbarElements && navbarElements.map((element) => (
           <NavigationMenuItem key={element.href}>
               <NavLink
                 to={element.href}

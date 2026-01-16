@@ -1,31 +1,31 @@
-import apiClient from "../axiosClient";
-import type { Category, CategoryCreateReq } from "../types/Category.interface";
+import { apiClientRest } from "../axiosClient";
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../types/Category.interface";
 import { handleApiCall } from "../utils/apiUtils";
 
 export const categoriesService = {
     getCategories: () => 
         handleApiCall(
-            apiClient.get<Category[]>("/categories"),
+            apiClientRest.get<Category[]>("/categories"),
             "getCategories"
         ),
     getCategoryById: (id: string) =>
         handleApiCall(
-            apiClient.get<Category>(`/categories/${id}`),
+            apiClientRest.get<Category>(`/categories/${id}`),
             "getCategoryById"
         ),
-        createCategory: (category:CategoryCreateReq)=>
+        createCategory: (category:CreateCategoryRequest)=>
             handleApiCall(
-                apiClient.post("/categories",category),
+                apiClientRest.post("/categories",category),
                 "createCategory"
             ),
-             updateCategory: ({category,id}:{category:CategoryCreateReq,id:number})=>
+             updateCategory: ({category,id}:{category:UpdateCategoryRequest,id:number})=>
             handleApiCall(
-                apiClient.put(`/categories/${id}`,category),
-                "createCategory"
+                apiClientRest.patch(`/categories/${id}`,category),
+                "updateCategory"
             ),
         deleteCategory: (id: number) =>
             handleApiCall(
-                apiClient.delete(`/categories/${id}`),
+                apiClientRest.delete(`/categories/${id}`),
                 "deleteCategory"
             )
 }

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import ProductForm from "@/shared/UI/admin/products/ProductForm";
 import { useSuspenseQueries, type UseSuspenseQueryResult } from "@tanstack/react-query";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, SearchIcon } from "lucide-react";
 import { useSearchParams } from "react-router";
 
 import type { Category } from "@/api/types/Category.interface";
@@ -19,7 +19,7 @@ import type { Product } from "@/api/types/Product.interface";
 import { Input } from "@/components/ui/input";
 import ProductList from "@/features/admin/product/productList";
 import CategoryFilters from "@/features/product/CategoriesFilter";
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
 const ProductFormContainer = ({productId,closeSheet}:{
@@ -66,6 +66,11 @@ const AdminProductsPage = () => {
     setSearchParams({});
   };
 
+  const searchRef=useRef<HTMLInputElement>(null)
+  const onSearch=()=>{
+    const searchTerm=searchRef.current?.value;
+    setSearchTerm(searchTerm??"")
+  }
 
   return (
     <div className="space-y-6">
@@ -86,14 +91,18 @@ const AdminProductsPage = () => {
 
        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between py-4">
               <div className="relative w-full max-w-sm">
+                <div className="flex">
+                  <div>
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                 <Input
                   type="search"
                   placeholder="Search products..."
                   className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                    ref={searchRef}
+                  />
+                  </div>
+                <Button onClick={onSearch}><SearchIcon/> Search</Button>
+                  </div>
               </div>
 
               <Suspense fallback={<div className="h-10 w-64 bg-muted animate-pulse rounded-full" />}>

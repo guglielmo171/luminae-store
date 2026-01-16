@@ -23,14 +23,15 @@ import {
 const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCategoryId?: number | null,searchTerm:string,onOpenEditSheet: (id: number) => void}) => {
 
      const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery(createProductsQueryOptions({ categoryId: selectedCategoryId }));
+    useSuspenseInfiniteQuery(createProductsQueryOptions({ categoryId: selectedCategoryId,search:searchTerm }));
 
   const [productToDelete, setProductToDelete] = useState<{id: number, title: string} | null>(null);
   
   const { mutate: deleteProduct } = useMutation({
     mutationFn: productsService.deleteProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productQueries.base });
+      // queryClient.invalidateQueries({ queryKey: productQueries.base });
+      queryClient.refetchQueries({ queryKey: productQueries.base });
       toast.success("Product deleted successfully");
       setProductToDelete(null);
     },
@@ -42,11 +43,11 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
     }
   };
 
-  const products = data?.pages.flatMap((page) => page) || [];
+  const products = data?.pages.flatMap((page) => page.data ) || [];
   
-  const filteredProducts = products.filter(product => 
-    product.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const products = products.filter(product => 
+  //   product?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
      let productListContent;
 
@@ -58,14 +59,14 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
 //                    </td>
 //                 </tr>)
 //   }
-  if(filteredProducts){
+  if(products){
     productListContent=(<>
-     {filteredProducts.map((product) => (
+     {products.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4">
                     <div className="h-10 w-10 rounded-md bg-gray-100 border border-gray-200 overflow-hidden">
                       <img
-                        src={product.images[0]}
+                        src={product?.images?.[0]}
                         alt={product.title}
                         className="h-full w-full object-cover"
                       />
@@ -80,7 +81,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                     </Badge>
                   </td>
                   <td className="py-3 px-4 text-gray-700">
-                    ${product.price.toFixed(2)}
+                    ${product?.price?.toFixed(2)}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <DropdownMenu>
@@ -98,7 +99,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           className="text-red-600 focus:text-red-600 cursor-pointer"
-                          onClick={() => setProductToDelete({id: product.id, title: product.title})}
+                          onClick={() => setProductToDelete({id: product.id!, title: product.title!})}
                         >
                             <Trash className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
@@ -110,7 +111,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
     </>)
   }
   
-  if(data && filteredProducts.length === 0){
+  if(data && products.length === 0){
      productListContent=(<tr>
                    <td colSpan={5} className="py-8 text-center text-gray-500">
                       {searchTerm ? "No products match your search. Try loading more data" : "No products found."}
@@ -156,7 +157,7 @@ const ProductList = ({selectedCategoryId,searchTerm,onOpenEditSheet}:{selectedCa
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete the product
-                        <strong> "{productToDelete?.title}"</strong> and all associated data.
+                        {productToDelete && <strong> "{productToDelete.title}"</strong>} and all associated data.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
