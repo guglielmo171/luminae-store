@@ -1,4 +1,4 @@
-import { authQueryOptions } from "@/api/queries/authQueries";
+import { authQueryOptions, useSignOutOptions } from "@/api/queries/authQueries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   LogOut,
@@ -22,7 +22,7 @@ import {
   X
 } from "lucide-react";
 import { useState } from "react";
-import { Link, NavLink, Outlet, redirect } from "react-router";
+import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
 import { Toaster } from "sonner";
 
 
@@ -44,6 +44,13 @@ const AdminLayout = () => {
   const { data: user } = useQuery(authQueryOptions.user());
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const navigate=useNavigate()
+  const {mutate:handleSignOut} = useMutation({
+    ...useSignOutOptions(),
+    onSuccess:()=>{
+        navigate("/login");
+    }
+});
 
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -114,7 +121,9 @@ const AdminLayout = () => {
         </div>
 
         <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 bg-white">
-           <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
+           <Button 
+           onClick={()=>handleSignOut()}
+           variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
              <LogOut className="mr-2 h-4 w-4" />
              Logout
            </Button>
@@ -171,14 +180,16 @@ const AdminLayout = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={()=>navigate("profile")}>
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  {/* <DropdownMenuItem>
                     Settings
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
+                  <DropdownMenuItem className="text-red-600"
+                  onClick={()=>handleSignOut()}
+                  >
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>

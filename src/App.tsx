@@ -52,6 +52,10 @@ function App() {
     {path:"",element:<>Prima page admin</>},
     {path:"products", element:<AdminProductsPage />},
     {path:"categories", element:<AdminCategoriesPage />},
+    {
+      path:"profile",
+      element:<ProfilePage />
+    },
       
     ]}
 ]);
