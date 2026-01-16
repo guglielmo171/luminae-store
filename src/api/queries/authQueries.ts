@@ -41,8 +41,8 @@ export function useSignInWithPasswordOptions() {
   return mutationOptions({
     mutationFn: authService.signInWithPassword,
     onSuccess: () => {
-       queryClient.invalidateQueries({ queryKey: authKeys.session() });
-       queryClient.invalidateQueries({ queryKey: authKeys.user() });
+       queryClient.refetchQueries({ queryKey: authKeys.session() });
+       queryClient.refetchQueries({ queryKey: authKeys.user() });
     },
   });
 }
