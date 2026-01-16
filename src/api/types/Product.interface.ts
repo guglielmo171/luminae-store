@@ -40,7 +40,7 @@ export interface Product {
 }
 
 
-export type ProductDto = Partial<Product>
+export type ProductDto = Product
 
 
 // export type ProductUpdateDto= Pick<Product,"title"|"price"|"description"|"images"> & {categoryId:number} 
