@@ -1,19 +1,18 @@
 import { createCategoriesQueryOptions } from "@/api/queries/categoryQueries";
 import { createProductsQueryOptions } from "@/api/queries/productQueries";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingBag, TrendingUp, ArrowRight, Plus } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { ArrowRight, Package, Plus, ShoppingBag, TrendingUp } from "lucide-react";
 import { Suspense } from "react";
-import { useSuspenseQuery, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import { Spinner } from "@/components/ui/spinner";
 
 const DashboardStats = () => {
   const { data: categoriesData } = useSuspenseQuery(createCategoriesQueryOptions());
   const { data: productsData } = useSuspenseInfiniteQuery(createProductsQueryOptions({ search: "", categoryId: null }));
 
-  const totalProducts = productsData?.pages.reduce((acc, page) => acc + page.data.length, 0) || 0;
-  const totalCategories = categoriesData?.length || 0;
+  const totalProducts = productsData?.pages[0].total || 0;
+  const totalCategories = categoriesData?.total || 0;
 
   // Calculate average price if products exist
   const allProducts = productsData?.pages.flatMap(page => page.data) || [];
