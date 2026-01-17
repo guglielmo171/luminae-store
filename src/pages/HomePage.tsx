@@ -169,14 +169,14 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {categories?.slice(0, 4).map((category: Category, index: number) => (
+              {categories?.data.slice(0, 4).map((category: Category, index: number) => (
                 <Link
                   key={category.id}
                   to={`/products?category=${category.id}`}
                   className="group animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
+                  <Card className="py-0 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
                     <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                       {category.image ? (
                         <img
