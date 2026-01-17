@@ -14,20 +14,20 @@ import { useSuspenseQueries, type UseSuspenseQueryResult } from "@tanstack/react
 import { Plus, Search, SearchIcon } from "lucide-react";
 import { useSearchParams } from "react-router";
 
-import type { Category } from "@/api/types/Category.interface";
+import type { ResponseCategoryList } from "@/api/services/categoriesService";
 import type { Product } from "@/api/types/Product.interface";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import ProductList from "@/features/admin/product/productList";
 import CategoryFilters from "@/features/product/CategoriesFilter";
 import { Suspense, useRef, useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
 
 const ProductFormContainer = ({productId,closeSheet}:{
   productId?: string | null;
   closeSheet: () => void;
 })=>{
   const result: [
-    UseSuspenseQueryResult<Category[],Error>,
+    UseSuspenseQueryResult<ResponseCategoryList,Error>,
     UseSuspenseQueryResult<Product,Error> | undefined,
   ]= useSuspenseQueries({
     queries:[
@@ -40,7 +40,7 @@ const ProductFormContainer = ({productId,closeSheet}:{
   
   return <ProductForm 
   closeSheet={closeSheet} 
-  loadedCategories={categories.data} 
+  loadedCategories={categories.data.data} 
   loadedData={product?.data} />
 }
 

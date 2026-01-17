@@ -6,6 +6,7 @@ interface ApiResponsePaginated<T>{
   data:T[],
   hasNextPage:boolean,
   nextCursor:string
+  total?:number
 
 }
 

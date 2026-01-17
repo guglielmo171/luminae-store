@@ -7,7 +7,7 @@ import { useInView } from "react-intersection-observer";
 
 type SortOption = "latest" | "price-asc" | "price-desc";
 
-const ProductsListContent = ({ categoryId, sortBy }: { categoryId: number | null; sortBy: SortOption }) => {
+const ProductsListContent = ({ categoryId, sortBy ,searchTerm=""}: { categoryId: number | null; sortBy: SortOption,searchTerm?:string }) => {
   const { ref, inView } = useInView({
     threshold: 0.1,
   });
@@ -19,7 +19,7 @@ const ProductsListContent = ({ categoryId, sortBy }: { categoryId: number | null
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(createProductsQueryOptions({search:"",categoryId,sortField,direction}));
+  } = useSuspenseInfiniteQuery(createProductsQueryOptions({search:searchTerm,categoryId,sortField,direction,}));
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
