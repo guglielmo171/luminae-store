@@ -43,7 +43,7 @@ const CategoryList = ({ searchTerm, onEdit }: Props) => {
         }
     };
 
-    const filteredCategories=categories.filter((category)=>category.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    const filteredCategories=categories.data.filter((category)=>category.name.toLowerCase().includes(searchTerm.toLowerCase()))
   return (
     <>
     {/* {filteredCategories.map((category)=>(

@@ -2,10 +2,16 @@ import { apiClientRest } from "../axiosClient";
 import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../types/Category.interface";
 import { handleApiCall } from "../utils/apiUtils";
 
+
+export interface ResponseCategoryList{
+    data:Category[],
+    total:number
+} 
+
 export const categoriesService = {
     getCategories: () => 
         handleApiCall(
-            apiClientRest.get<Category[]>("/categories"),
+            apiClientRest.get<ResponseCategoryList>("/categories"),
             "getCategories"
         ),
     getCategoryById: (id: string) =>
