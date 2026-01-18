@@ -14,6 +14,8 @@ import AdminLayout, { adminLoader } from './pages/admin/AdminLayout';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import ErrorPage from './pages/ErrorPage';
 export const queryClient = new QueryClient({
   defaultOptions:{
     mutations:{
@@ -25,7 +27,7 @@ function App() {
 
   const router = createBrowserRouter([
    
-  { path: "/", element: <RootLayout />, loader: rootLoader(queryClient), children:[
+  { path: "/", element: <RootLayout />, loader: rootLoader(queryClient), errorElement: <ErrorPage />, children:[
     {path:"",element:<HomePage />},
     {
       path: "login",
@@ -45,11 +47,11 @@ function App() {
     {path:"products/:id",element:<ProductPage />},
     {path:"about",element:<AboutPage />},
     {path:"unauthorized", element:<UnauthorizedPage />},
-    {path:"*",element:<h1>404</h1>}
+    {path:"*",element:<ErrorPage />}
   ]},
-  {path:"/admin",loader:adminLoader(queryClient),element:<AdminLayout />,children:[
+  {path:"/admin",loader:adminLoader(queryClient),element:<AdminLayout />,errorElement: <ErrorPage />,children:[
 
-    {path:"",element:<>Prima page admin</>},
+    {path:"",element:<AdminDashboardPage />},
     {path:"products", element:<AdminProductsPage />},
     {path:"categories", element:<AdminCategoriesPage />},
     {

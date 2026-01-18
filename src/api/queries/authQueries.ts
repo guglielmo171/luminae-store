@@ -40,10 +40,15 @@ export function useSignInWithPasswordOptions() {
   const queryClient = useQueryClient();
   return mutationOptions({
     mutationFn: authService.signInWithPassword,
-    onSuccess: () => {
-       queryClient.refetchQueries({ queryKey: authKeys.session() });
+    onSuccess(data) {
+      
+           queryClient.refetchQueries({ queryKey: authKeys.session() });
        queryClient.refetchQueries({ queryKey: authKeys.user() });
     },
+    // onSuccess: () => {
+
+  
+    // },
   });
 }
 

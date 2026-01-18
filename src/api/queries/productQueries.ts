@@ -3,7 +3,7 @@ import { productsService } from "../services/productsApi";
 
   export const productQueries = {
   base: ["products"] as const,
-  all: (search:string,categoryId?: number | null,sortField?:string,direction?:"forward"|"backward") => [...productQueries.base,{search}, { categoryId }, { sortField }, { direction }] as const,
+  all: (search:string="",categoryId?: number | null,sortField?:string,direction?:"forward"|"backward") => [...productQueries.base,{search}, { categoryId }, { sortField }, { direction }] as const,
   related: (id: number | string) => [...productQueries.base, "related", id] as const,
 };
 

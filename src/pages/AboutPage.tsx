@@ -1,5 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Heart, Target, Lightbulb, Rocket } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const values = [
   {
@@ -32,6 +36,22 @@ const team = [
 ];
 
 const AboutPage = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Show success toast
+    toast.success("Thank you for your interest! We've received your email and will get back to you soon.");
+    
+    // Reset form
+    setName("");
+    setEmail("");
+    setMessage("");
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -157,21 +177,60 @@ const AboutPage = () => {
 
       {/* CTA Section */}
       <section className="border-t border-border bg-linear-to-br from-primary/5 to-accent/5 px-6 py-24 md:px-12 lg:px-24">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="mb-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl animate-fade-in-up">
-            Want to Join Us?
-          </h2>
-          <p className="mb-10 text-lg text-muted-foreground animate-fade-in-up delay-100">
-            We're always looking for talented individuals who share our passion for building great products.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 animate-fade-in-up delay-200">
-            <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300">
-              View Open Positions
-            </Button>
-            <Button size="lg" variant="outline" className="shadow-sm hover:shadow-md transition-all duration-300">
-              Get in Touch
-            </Button>
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="mb-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl animate-fade-in-up">
+              Want to Join Us?
+            </h2>
+            <p className="text-lg text-muted-foreground animate-fade-in-up delay-100">
+              We're always looking for talented individuals who share our passion for building great products.
+            </p>
           </div>
+
+          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6 animate-fade-in-up delay-200">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your.email@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="message">Message</Label>
+              <textarea
+                id="message"
+                placeholder="Tell us about yourself and why you'd like to join our team..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                rows={6}
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              />
+            </div>
+
+            <Button type="submit" className="w-full" size="lg">
+              Send Message
+            </Button>
+          </form>
         </div>
       </section>
     </div>

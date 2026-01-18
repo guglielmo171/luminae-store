@@ -1,7 +1,21 @@
 import { Link } from "react-router";
 import { Sparkles, Github, Twitter, Instagram, Mail } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+
+  const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Show success toast
+    toast.success("Thanks for subscribing! You’re in — check your inbox soon for fresh updates, tips and exclusive content.");
+    
+    // Reset form
+    setEmail("");
+  };
+
   return (
     <footer className="border-t border-border bg-card/30 py-12 px-6 md:px-12 lg:px-24 mt-auto">
       <div className="mx-auto max-w-7xl">
@@ -10,7 +24,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-2 font-bold text-xl transition-colors hover:text-primary">
               <Sparkles className="size-6 text-primary" />
-              <span>ShadcnApp</span>
+              <span>Luminae Store</span>
             </Link>
             <p className="text-muted-foreground max-w-sm">
               Providing modern UI solutions with premium design aesthetics. 
@@ -36,7 +50,6 @@ const Footer = () => {
               <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link></li>
               <li><Link to="/products" className="text-muted-foreground hover:text-primary transition-colors">Products</Link></li>
               <li><Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
             </ul>
           </div>
 
@@ -44,21 +57,27 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold text-foreground">Newsletter</h4>
             <p className="text-sm text-muted-foreground">Subscribe to get the latest updates.</p>
-            <div className="flex gap-2">
+            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
               <input 
                 type="email" 
                 placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
               />
-              <button className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors">
+              <button 
+                type="submit"
+                className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+              >
                 <Mail className="size-4" />
               </button>
-            </div>
+            </form>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-          <p>© 2024 ShadcnApp Inc. All rights reserved.</p>
+          <p>© 2024 Luminae Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>

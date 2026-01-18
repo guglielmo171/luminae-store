@@ -73,7 +73,14 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
   });
   const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
     ...useSignInWithPasswordOptions(),
-    onSuccess:()=>{
+    onSuccess:(data)=>{
+      console.log('log auth data',data?.session.access_token);
+      const jwt=data?.session.access_token
+      if(jwt){
+        sessionStorage.setItem('jwt',jwt);
+      }
+
+
       // Refetch delle query per aggiornare la navbar (stessa logica di useSignInWithPasswordOptions)
       queryClient.invalidateQueries({ queryKey: authKeys.session() });
       queryClient.invalidateQueries({ queryKey: authKeys.user() });

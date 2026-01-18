@@ -9,9 +9,10 @@ import {
   Briefcase,
   Filter,
   Monitor,
+  Search,
   Watch
 } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState, type ChangeEvent } from "react";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 const skeleton=(
   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -37,6 +39,25 @@ type SortOption = "latest" | "price-asc" | "price-desc";
 const ProductsPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("latest");
+
+  const [search,setSearch]=useState<string>()
+  const [searchTerm,onSearchTerm]=useState<string>()
+
+  // function onSearch(evt:ChangeEvent<HTMLInputElement>) {
+    
+  // }
+
+  useEffect(()=>{
+    const timeout=setTimeout(()=>{
+      console.log("searchTerm debounce",searchTerm);
+      setSearch(searchTerm)
+    },1500)
+
+    return ()=> clearTimeout(timeout);
+    
+  },[searchTerm])
+
+  
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -68,6 +89,17 @@ const ProductsPage = () => {
             />
           </Suspense>
 
+          <div>
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder="Search products..."
+                  className="pl-8"
+                  onChange={(e)=>onSearchTerm(e.target.value)}
+                  />
+          </div>
+
+
           <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground font-medium">Sort by:</span>
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
@@ -86,7 +118,7 @@ const ProductsPage = () => {
         <Suspense 
           fallback={skeleton}
         >
-          <ProductsListContent categoryId={selectedCategoryId} sortBy={sortBy} />
+          <ProductsListContent categoryId={selectedCategoryId} sortBy={sortBy} searchTerm={search} />
         </Suspense>
       </main>
 

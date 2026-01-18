@@ -1,9 +1,9 @@
 import type { Product } from "@/api/types/Product.interface";
+import imageFallbackPlaceholder from "../../../assets/image-not-found-placeholder.png"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
-    CardAction,
     CardContent,
     CardDescription,
     CardFooter,
@@ -12,40 +12,49 @@ import {
 import {
   ArrowRight,
     Heart,
+    ImageIcon,
     ShoppingBag,
     Star
 } from "lucide-react";
 import { Link } from "react-router";
+import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProductItem = ({product}: {product: Product}) => {
-  
+  const [isImageLoading,setIsImageLoading]=useState(false)
   return (
        <Card key={product.id} className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 flex flex-col">
-                <CardHeader className="relative">
-                  <div className="absolute top-4 right-4 z-5">
-                    <CardAction>
-                      <Button variant="ghost" size="icon" className="rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-                        <Heart className="size-4 hover:fill-destructive hover:text-destructive" />
-                      </Button>
-                    </CardAction>
+                <CardHeader className="relative flex flex-col">
+                  <div className="absolute top-2 right-2 z-10">
+                    <Button variant="ghost" size="icon" className="rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                      <Heart className="size-4 hover:fill-destructive hover:text-destructive" />
+                    </Button>
                   </div>
-                  <div className="mb-4 aspect-square rounded-lg bg-linear-to-br from-muted/50 to-muted flex items-center justify-center group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-linear-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="text-primary scale-[2] group-hover:scale-[2.5] transition-transform duration-500">
-                      {product?.images?.[0] && <img src={product.images[0]} alt={product.title} width={200} height={200} />}
-                    </div>
+                  <div className="aspect-square w-full mb-4 flex items-center justify-center relative">
+                    {isImageLoading && (
+                      <Skeleton className="absolute inset-0 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="size-12 text-muted-foreground/50" />
+                      </Skeleton>
+                    )}
+                    {product?.images?.[0] && <img
+                      src={product.images[0]}
+                      alt={product.title}
+                      className={`w-full h-full object-cover rounded-lg transition-opacity duration-300 ${isImageLoading ? 'opacity-0' : 'opacity-100'}`}
+                      onError={({currentTarget}) => {
+                        currentTarget.src = imageFallbackPlaceholder
+                        setIsImageLoading(false)
+                      }}
+                      onLoadStart={() => setIsImageLoading(true)}
+                      onLoad={() => setIsImageLoading(false)}
+                    />}
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary" className="font-semibold">{product.category?.name}</Badge>
                     <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
                       <Star className="size-3 fill-amber-400 text-amber-400" />
-                      {/* <span>{product.} ({product.reviews})</span> */}
                     </div>
-                    
                   </div>
-                  {/* <CardTitle className="text-xl group-hover:text-primary ">title</CardTitle> */}
                   <CardDescription className="line-clamp-2 mt-1 min-h-[40px]">{product.title}</CardDescription>
-                  
                 </CardHeader>
                 
                 <CardContent className="grow">

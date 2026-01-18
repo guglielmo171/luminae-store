@@ -11,10 +11,11 @@ export const apiClientRest : AxiosInstance= axios.create({
 });
 
 
-apiClient.interceptors.request.use(config=>{
-    const token = localStorage.getItem("token");
-    if(token){
-        config.headers.Authorization = `Bearer ${token}`;
+apiClientRest.interceptors.request.use(config=>{
+    // const token = localStorage.getItem("token");
+    const jwt = sessionStorage.getItem("jwt");
+    if(jwt){
+        config.headers.Authorization = `Bearer ${jwt}`;
     }
     return config;
 })

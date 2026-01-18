@@ -29,8 +29,8 @@ import { Toaster } from "sonner";
 export const adminLoader = (queryClient: QueryClient) => async () => {
     const user = await queryClient.ensureQueryData(authQueryOptions.user());
 
-    // const userNotAuthorized= !user || user?.role !== "admin";
-    const userNotAuthorized=!user
+    const userNotAuthorized= !user || user?.role !== "admin";
+    // const userNotAuthorized=!user
     if (userNotAuthorized) {
       return redirect("/unauthorized");
     }
@@ -143,7 +143,7 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </Button>
 
-          <div className="flex-1 flex max-w-lg ml-0 lg:ml-0">
+          {/* <div className="flex-1 flex max-w-lg ml-0 lg:ml-0">
              <div className="relative w-full">
                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                  <Search className="h-5 w-5 text-gray-400" />
@@ -154,7 +154,7 @@ const AdminLayout = () => {
                  className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                />
              </div>
-          </div>
+          </div> */}
 
           <div className="ml-auto flex items-center gap-4">
              <div className="flex items-center gap-3">
