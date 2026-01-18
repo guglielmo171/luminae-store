@@ -72,9 +72,10 @@ export const authService = {
     //   ]);
 
     const data = await authService.userDataDetail();
-    const profile = !data ? null : await supabase.from('profiles').select();
-
+    const profile = !data.user ? null : await supabase.from('profiles').select();
+    // let role 
     // console.log('profile ',profile);
+
     return {...data?.user,profile_role:profile?.data?.[0]?.role};
 
   },
