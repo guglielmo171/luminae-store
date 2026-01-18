@@ -76,8 +76,9 @@ const getErrorInfo = (error: unknown): ErrorInfo => {
   };
 };
 
-const ErrorPage = () => {
-  const error = useRouteError();
+
+const ErrorPageCustom = () => {
+  const error:any = useRouteError();
   const errorInfo = getErrorInfo(error);
   const IconComponent = errorInfo.icon;
 
@@ -166,8 +167,7 @@ const ErrorPage = () => {
           </Card>
 
           {/* Error Details (Development) */}
-          {import.meta.env.DEV && error && (
-            <details className="mt-8 rounded-lg border border-border/50 bg-muted/30 p-4">
+          {(import.meta.env.DEV && error) && (<details className="mt-8 rounded-lg border border-border/50 bg-muted/30 p-4">
               <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
                 Dettagli Errore (Dev Only)
               </summary>
@@ -197,4 +197,4 @@ const ErrorPage = () => {
   );
 };
 
-export default ErrorPage;
+export default ErrorPageCustom;
