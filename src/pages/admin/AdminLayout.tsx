@@ -29,8 +29,8 @@ import { Toaster } from "sonner";
 export const adminLoader = (queryClient: QueryClient) => async () => {
     const user = await queryClient.ensureQueryData(authQueryOptions.user());
 
-    // const userNotAuthorized= !user || user?.role !== "admin";
-    const userNotAuthorized=!user
+    const userNotAuthorized= !user || user?.role !== "admin";
+    // const userNotAuthorized=!user
     if (userNotAuthorized) {
       return redirect("/unauthorized");
     }
