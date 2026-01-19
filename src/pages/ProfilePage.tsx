@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import { safeFormatDate } from "@/lib/dateUtils";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   Activity,
@@ -37,23 +38,19 @@ export default function ProfilePage() {
   });
 
   // Format dates
-  const lastSignIn = user?.last_sign_in_at
-    ? new Date(user.last_sign_in_at).toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "Never";
+  const lastSignIn =safeFormatDate(user?.last_sign_in_at,{
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        },"Never")
+  const joinedAt =safeFormatDate(user?.created_at,{
+    month: "long",
+    year: "numeric",
+  },"Unknown")
 
-  const joinedAt = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      })
-    : "Unknown";
 
   return (
     <div className="container max-w-5xl py-10 space-y-8">
