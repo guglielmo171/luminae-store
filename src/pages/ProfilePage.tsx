@@ -37,7 +37,7 @@ export default function ProfilePage() {
   });
 
   // Format dates
-  const lastSignIn = user.last_sign_in_at
+  const lastSignIn = user?.last_sign_in_at
     ? new Date(user.last_sign_in_at).toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
@@ -48,7 +48,7 @@ export default function ProfilePage() {
       })
     : "Never";
 
-  const joinedAt = user.created_at
+  const joinedAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
         month: "long",
         year: "numeric",

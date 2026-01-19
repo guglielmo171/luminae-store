@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import hero from "../assets/homepage-hero.jpg"
 import {
   ArrowRight,
   Sparkles,
@@ -89,7 +90,7 @@ const HomePage = () => {
                 <div className="absolute inset-0 bg-linear-to-tr from-primary/10 to-transparent" />
                 {featuredProducts?.[0]?.images?.[0] ? (
                   <img
-                    src={featuredProducts[0].images[0]}
+                    src={hero}
                     alt={featuredProducts[0].title}
                     className="size-full object-cover"
                   />
