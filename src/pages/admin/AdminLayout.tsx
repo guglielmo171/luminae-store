@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -17,7 +16,6 @@ import {
   LogOut,
   Menu,
   Package,
-  Search,
   ShoppingBag,
   X
 } from "lucide-react";
@@ -29,7 +27,7 @@ import { Toaster } from "sonner";
 export const adminLoader = (queryClient: QueryClient) => async () => {
     const user = await queryClient.ensureQueryData(authQueryOptions.user());
 
-    const userNotAuthorized= !user || user?.role !== "admin";
+    const userNotAuthorized= !user || user?.profile_role !== "Admin";
     // const userNotAuthorized=!user
     if (userNotAuthorized) {
       return redirect("/unauthorized");
@@ -56,8 +54,6 @@ const AdminLayout = () => {
     { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
     { icon: Package, label: "Products", href: "/admin/products" },
     { icon: ShoppingBag, label: "Categories", href: "/admin/categories" },
-    // { icon: Users, label: "Customers", href: "/admin/customers" },
-    // { icon: Settings, label: "Settings", href: "/admin/settings" },
   ];
 
   return (
@@ -143,58 +139,45 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </Button>
 
-          {/* <div className="flex-1 flex max-w-lg ml-0 lg:ml-0">
-             <div className="relative w-full">
-               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                 <Search className="h-5 w-5 text-gray-400" />
-               </div>
-               <Input 
-                 type="text"
-                 placeholder="Search global..."
-                 className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-               />
-             </div>
-          </div> */}
-
           <div className="ml-auto flex items-center gap-4">
-             <div className="flex items-center gap-3">
-               <span className="hidden md:block text-sm font-medium text-gray-700">
-                  {user.email}
-               </span>
-               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10 border border-gray-200">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Admin" />
-                      <AvatarFallback>{user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Admin</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={()=>navigate("profile")}>
-                    Profile
-                  </DropdownMenuItem>
-                  {/* <DropdownMenuItem>
-                    Settings
-                  </DropdownMenuItem> */}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600"
-                  onClick={()=>handleSignOut()}
-                  >
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-             </div>
+              <div className="flex items-center gap-3">
+                <span className="hidden md:block text-sm font-medium text-gray-700">
+                    {user?.email}
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10 border border-gray-200">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} alt="Admin" />
+                        <AvatarFallback>{user?.email?.substring(0,2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">Admin</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={()=>navigate("profile")}>
+                      Profile
+                    </DropdownMenuItem>
+                    {/* <DropdownMenuItem>
+                      Settings
+                    </DropdownMenuItem> */}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-red-600"
+                    onClick={()=>handleSignOut()}
+                    >
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
           </div>
         </header>
 
