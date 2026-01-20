@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useMutation } from "@tanstack/react-query";
 import { X } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
 
 
@@ -31,7 +31,13 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
 
     const [currentImageIndex,setCurrentImageIndex]=useState<number>(0)
     const [images,setImages]=useState<string[]>(loadedData?.images ?? [])
-    const currImage = images?.[currentImageIndex] ?? "";
+    
+    // const currImage = images?.[currentImageIndex] ?? "";
+    const currImage = useMemo(()=>{
+        if(images.length === 0) return "";
+        const safeIndex= Math.min(currentImageIndex , images.length - 1)
+        return images[safeIndex] ?? ""
+    },[images,currentImageIndex]);
 
     function resetImage(){
         const originalValue = loadedData?.images?.[currentImageIndex] ?? "";
@@ -44,8 +50,24 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
     function removeImage(index:number){
         setImages((prev)=>{
             const updatedImages=prev.filter((_,idx)=>idx !== index);
-            // console.log('indexToDelete',indexToDelete);
-            setCurrentImageIndex(0);
+            
+        
+
+            setCurrentImageIndex(currIdx=>{
+                //se updatedImages e' vuoto ?
+                if(updatedImages.length === 0) return 0;
+
+                //  Se rimuoviamo immagine prima di quella corrente?
+                if(index < currIdx) return currIdx - 1;
+
+                // Se rimuoviamo quella corrente ed è l'ultima → vai a previous
+                if(index === currIdx && currIdx >= updatedImages.length) {
+                    return currIdx - 1;
+                }
+
+                // Altrimenti mantieni index corrente
+                return currIdx;
+            });
             return updatedImages;
         });
     }
@@ -53,6 +75,10 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
         const newValue=e.currentTarget.value;
         // console.log('term change',e.currentTarget.value);
         setImages(prev => {
+            if (currentImageIndex < 0 || currentImageIndex >= prev.length) {
+                console.warn('[ProductForm] Invalid currentImageIndex:', currentImageIndex);
+                return prev;  // Nessun update se index invalido
+            }
             const updatedImages=prev.map((img, idx) => 
                 idx === currentImageIndex ? newValue : img
             )
@@ -188,7 +214,11 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
                         <button
                            
                             type="button"
-                            onClick={() => setCurrentImageIndex(index)}
+                            onClick={() => {
+                                if (index >= 0 && index < images.length) {
+                                    setCurrentImageIndex(index);
+                                  }
+                            }}
                             className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
                                 currentImageIndex === index 
                                     ? "border-primary ring-2 ring-primary/20" 

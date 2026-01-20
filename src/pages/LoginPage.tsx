@@ -112,13 +112,13 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
 
     switch (mode) {
     case 'login':
-      signInWithPassword({ email, password:password! });
+      signInWithPassword({ email, password:password });
       break;
     case 'magic_link':
       signInWithMagicLink(email);
       break;
     case 'signup':
-      signUp({ email, password:password! });
+      signUp({ email, password:password });
       break;
     case 'forgot_password':
       resetPassword(email);
