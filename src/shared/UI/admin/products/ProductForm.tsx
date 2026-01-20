@@ -127,9 +127,6 @@ const ProductForm = ({ loadedData,loadedCategories,closeSheet }: { loadedData?: 
     const isPending= isUpdatePending || isCreatePending 
 
     const formAction=(fd:FormData)=>{
-        // const image=fd.get("image") as string
-        // const images = (!!loadedData?.images) ? [...loadedData?.images,image] : [image]
-        // const data = Object.fromEntries(fd.entries())
         const payload: CreateProductRequest ={
             title:fd.get("title") as string,
             price:parseFloat(fd.get("price") as string),

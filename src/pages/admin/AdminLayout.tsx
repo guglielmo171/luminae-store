@@ -54,8 +54,6 @@ const AdminLayout = () => {
     { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
     { icon: Package, label: "Products", href: "/admin/products" },
     { icon: ShoppingBag, label: "Categories", href: "/admin/categories" },
-    // { icon: Users, label: "Customers", href: "/admin/customers" },
-    // { icon: Settings, label: "Settings", href: "/admin/settings" },
   ];
 
   return (

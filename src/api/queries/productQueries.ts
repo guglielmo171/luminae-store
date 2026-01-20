@@ -11,9 +11,9 @@ export function createProductsQueryOptions({ categoryId,search,sortField,directi
   return infiniteQueryOptions({
     queryKey: productQueries.all(search,categoryId,sortField,direction),
     queryFn: async ({ pageParam }:{pageParam?:number}) => {
-      console.log('[Query] Fetching with cursor:', pageParam);
-      console.log('searchparam',search);
-      console.log('sortField',sortField,'direction',direction);
+      // console.log('[Query] Fetching with cursor:', pageParam);
+      // console.log('searchparam',search);
+      // console.log('sortField',sortField,'direction',direction);
       
       const [response] = await Promise.all([
         // productsService.getProducts({ cursor: pageParam }),
@@ -22,11 +22,11 @@ export function createProductsQueryOptions({ categoryId,search,sortField,directi
           : productsService.getProducts({ cursor: pageParam ,search,sortField,direction}),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
-      console.log('[Query] Response:', {
-        productsCount: response.data.length,
-        nextCursor: response.nextCursor,
-        hasNextPage: response.hasNextPage
-      });
+      // console.log('[Query] Response:', {
+      //   productsCount: response.data.length,
+      //   nextCursor: response.nextCursor,
+      //   hasNextPage: response.hasNextPage
+      // });
       return response;
     },
     staleTime: 5 * 60 * 1000,
@@ -34,11 +34,11 @@ export function createProductsQueryOptions({ categoryId,search,sortField,directi
     getNextPageParam: (lastPage) => {
       // Se c'è un nextCursor nella risposta, convertilo in numero per la prossima chiamata
       const nextCursor = lastPage.hasNextPage ? Number(lastPage.nextCursor) : undefined;
-      console.log('[Query] getNextPageParam:', {
-        nextCursor,
-        hasNextPage: lastPage.hasNextPage,
-        rawNextCursor: lastPage.nextCursor
-      });
+      // console.log('[Query] getNextPageParam:', {
+      //   nextCursor,
+      //   hasNextPage: lastPage.hasNextPage,
+      //   rawNextCursor: lastPage.nextCursor
+      // });
       return nextCursor;
     },
   });
