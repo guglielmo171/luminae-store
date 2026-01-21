@@ -19,7 +19,7 @@ import {
   Star,
   Package
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const HomePage = () => {
   // Fetch featured products (latest 8)
@@ -34,11 +34,17 @@ const HomePage = () => {
     },
   });
 
-  // Fetch categories
-  const { data: categories, isLoading: isLoadingCategories } = useQuery(
-    createCategoriesQueryOptions()
-  );
+  const navigate=useNavigate()
 
+  // Fetch categories
+  const { data: categories, isLoading: isLoadingCategories } = useQuery(createCategoriesQueryOptions());
+
+  const goToProductByCateories=(categoryId:number)=>{
+    navigate({
+      pathname:"/products",
+      search:`?category=${categoryId}`,
+    })
+  }
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -154,12 +160,12 @@ const HomePage = () => {
                 Esplora per Categoria
               </h2>
             </div>
-            <Link to="/products" className="hidden sm:block">
-              <Button variant="ghost" className="group">
+            {/* <div  className="hidden sm:block">
+              <Button onClick={()=>goToProductByCateories()} variant="ghost" className="group">
                 Vedi Tutte
                 <ChevronRight className="ml-1 size-4 transition-transform group-hover:translate-x-1" />
               </Button>
-            </Link>
+            </div> */}
           </div>
 
           {isLoadingCategories ? (
@@ -170,12 +176,14 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {categories?.data.slice(0, 4).map((category: Category, index: number) => (
-                <Link
+              {categories?.data
+              // .sort(data=>data.)
+              .slice(0, 4).map((category: Category, index: number) => (
+                <div
                   key={category.id}
-                  to={`/products?category=${category.id}`}
                   className="group animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
+                  onClick={()=>goToProductByCateories(category.id)}
                 >
                   <Card className="py-0 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
                     <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -196,7 +204,7 @@ const HomePage = () => {
                       </div>
                     </div>
                   </Card>
-                </Link>
+                </div>
               ))}
             </div>
           )}

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { useSearchParams } from "react-router";
 
 const skeleton=(
   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -37,7 +38,15 @@ const skeleton=(
 type SortOption = "latest" | "price-asc" | "price-desc";
 
 const ProductsPage = () => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [params] =useSearchParams()
+  console.log('params',params.get("category"));
+
+  function getSelectedCategory(){
+    if(!params.get("category")) return null;
+    return Number(params.get("category"))
+  }
+  
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(!params.get("category") ? null : Number(params.get("category")));
   const [sortBy, setSortBy] = useState<SortOption>("latest");
 
   const [search,setSearch]=useState<string>()
