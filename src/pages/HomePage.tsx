@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createCategoriesQueryOptions } from "@/api/queries/categoryQueries";
 import { productsService } from "@/api/services/productsApi";
 import type { Product } from "@/api/types/Product.interface";
@@ -20,6 +20,10 @@ import {
   Package
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
+import { emailService } from "@/api/services/mailService";
+import { createNewsletterOptions } from "@/api/queries/mailQueries";
+import { useRef } from "react";
+import { toast } from "sonner";
 
 const HomePage = () => {
   // Fetch featured products (latest 8)
@@ -39,11 +43,27 @@ const HomePage = () => {
   // Fetch categories
   const { data: categories, isLoading: isLoadingCategories } = useQuery(createCategoriesQueryOptions());
 
-  const goToProductByCateories=(categoryId:number)=>{
+
+  const {mutate:sendSubscription}=useMutation({...createNewsletterOptions(),
+    onSuccess(data, variables, onMutateResult, context) {
+      console.log('data newsletter send',data);
+      console.log('data newsletter variables',variables);
+      toast.success("Thanks for subscribing! You’re in — check your inbox soon for fresh updates, tips and exclusive content.")
+    },
+
+  })
+
+  const goToProductByCategories=(categoryId:number)=>{
     navigate({
       pathname:"/products",
       search:`?category=${categoryId}`,
     })
+  }
+// const newsletterEmail=useRef<HTMLInputElement>(null)
+  function subscribeNewsletter(fd:FormData){
+    const email = fd.get('email') as string
+    if(!email) return ;
+    sendSubscription(email);
   }
   return (
     <div className="min-h-screen">
@@ -183,7 +203,7 @@ const HomePage = () => {
                   key={category.id}
                   className="group animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
-                  onClick={()=>goToProductByCateories(category.id)}
+                  onClick={()=>goToProductByCategories(category.id)}
                 >
                   <Card className="py-0 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
                     <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -365,17 +385,18 @@ const HomePage = () => {
             Iscriviti alla newsletter per ricevere novita esclusive, offerte speciali
             e anteprime sui nuovi prodotti.
           </p>
-          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <form action={subscribeNewsletter} className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <input
               type="email"
+              name="email"
               placeholder="La tua email"
               className="rounded-lg border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary sm:w-80"
             />
-            <Button size="lg" className="shadow-lg">
+            <Button  size="lg" className="shadow-lg">
               Iscriviti
               <ArrowRight className="ml-2 size-4" />
             </Button>
-          </div>
+          </form>
         </div>
       </section>
     </div>
