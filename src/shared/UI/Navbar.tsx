@@ -253,6 +253,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
+import CartButton from "./cart/CartButton";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -304,7 +305,9 @@ const Navbar = () => {
       </NavigationMenuList>
     </NavigationMenu>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <CartButton />
+
                   {user ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
