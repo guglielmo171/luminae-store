@@ -68,7 +68,8 @@ const AboutPage = () => {
       errors.message.errors=["Message could not be empty"]
     }
 
-    if(errors){
+    const isErrorsPresent=errors.name.errors || errors.email.errors || errors.message.errors
+    if(isErrorsPresent){
       return {errors}
     }
 
