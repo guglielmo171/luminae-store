@@ -18,6 +18,8 @@ export const authQueryOptions = {
     queryOptions({
       queryKey: authKeys.user(),
       queryFn: authService.userData,
+      retry: false, // Non ritentare se fallisce
+      staleTime: 5 * 60 * 1000, // Cache per 5 minuti
     }),
 };
 
@@ -40,10 +42,15 @@ export function useSignInWithPasswordOptions() {
   const queryClient = useQueryClient();
   return mutationOptions({
     mutationFn: authService.signInWithPassword,
-    onSuccess: () => {
-       queryClient.invalidateQueries({ queryKey: authKeys.session() });
-       queryClient.invalidateQueries({ queryKey: authKeys.user() });
+    onSuccess(data) {
+      
+           queryClient.refetchQueries({ queryKey: authKeys.session() });
+       queryClient.refetchQueries({ queryKey: authKeys.user() });
     },
+    // onSuccess: () => {
+
+  
+    // },
   });
 }
 

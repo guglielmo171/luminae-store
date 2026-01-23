@@ -88,7 +88,7 @@ const ProductDetailsContent = ({ id }: { id: string }) => {
         <div className="flex flex-col">
           <div className="mb-6">
             <Badge variant="secondary" className="mb-4 px-3 py-1 text-sm font-semibold tracking-wide uppercase">
-              {product.category.name}
+              {product.category?.name}
             </Badge>
             <h1 className="mb-2 text-4xl font-extrabold tracking-tight text-foreground lg:text-5xl">
               {product.title}

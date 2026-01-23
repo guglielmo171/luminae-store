@@ -1,15 +1,58 @@
 import type { Category } from "./Category.interface";
 import {z} from "zod"
+// export interface Product {
+//   id: number;
+//   title: string;
+//   slug: string;
+//   price: number;
+//   description: string;
+//   category: ;
+//   images: string[];
+// }
+
+// export interface Product {
+//   category:Category;
+//   id: number;
+//   title: string;
+//   slug: string;
+//   description: string;
+//   images: string[];
+//   price: number;
+//   creationAt: string;
+//   updatedAt: string;
+// }
+
+
 export interface Product {
   id: number;
   title: string;
   slug: string;
   price: number;
+  description: string | null;
+  images: string[];
+  creationAt: Date;
+  updatedAt: Date;
+  category?: {
+      id: number;
+      name: string;
+      slug: string;
+  } | undefined;
+}
+
+
+export type ProductDto = Product
+
+
+// export type ProductUpdateDto= Pick<Product,"title"|"price"|"description"|"images"> & {categoryId:number} 
+export interface CreateProductRequest {
+  title: string;
+  price: number;
   description: string;
-  category: Category;
+  categoryId: number;
   images: string[];
 }
 
+export type UpdateProductRequest= Partial<CreateProductRequest>
 
 
 const emailSchema = z.string().min(1, "L'email è richiesta").email("Email non valida");

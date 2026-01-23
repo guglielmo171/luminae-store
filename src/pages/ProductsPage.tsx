@@ -7,12 +7,21 @@ import ProductsListContent from "@/features/product/productList";
 import CategoryFilters from "@/features/product/CategoriesFilter";
 import {
   Briefcase,
-  ChevronDown,
   Filter,
   Monitor,
+  Search,
   Watch
 } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState, type ChangeEvent } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { useSearchParams } from "react-router";
 
 const skeleton=(
   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -26,8 +35,38 @@ const skeleton=(
             </div>
 )
 
+type SortOption = "latest" | "price-asc" | "price-desc";
+
 const ProductsPage = () => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [params] =useSearchParams()
+  console.log('params',params.get("category"));
+
+  function getSelectedCategory(){
+    if(!params.get("category")) return null;
+    return Number(params.get("category"))
+  }
+  
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(!params.get("category") ? null : Number(params.get("category")));
+  const [sortBy, setSortBy] = useState<SortOption>("latest");
+
+  const [search,setSearch]=useState<string>()
+  const [searchTerm,onSearchTerm]=useState<string>()
+
+  // function onSearch(evt:ChangeEvent<HTMLInputElement>) {
+    
+  // }
+
+  useEffect(()=>{
+    const timeout=setTimeout(()=>{
+      console.log("searchTerm debounce",searchTerm);
+      setSearch(searchTerm)
+    },1500)
+
+    return ()=> clearTimeout(timeout);
+    
+  },[searchTerm])
+
+  
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -59,19 +98,36 @@ const ProductsPage = () => {
             />
           </Suspense>
 
+          <div>
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder="Search products..."
+                  className="pl-8"
+                  onChange={(e)=>onSearchTerm(e.target.value)}
+                  />
+          </div>
+
+
           <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground font-medium">Sort by:</span>
-            <button className="group flex items-center gap-2 font-bold text-foreground hover:text-primary transition-all">
-              Latest Arrivals 
-              <ChevronDown className="size-4 transition-transform group-hover:translate-y-0.5" />
-            </button>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger className="w-[180px] font-bold text-foreground hover:text-primary transition-all">
+                <SelectValue placeholder="Select sort option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="latest">Latest Arrivals</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <Suspense 
           fallback={skeleton}
         >
-          <ProductsListContent categoryId={selectedCategoryId} />
+          <ProductsListContent categoryId={selectedCategoryId} sortBy={sortBy} searchTerm={search} />
         </Suspense>
       </main>
 
@@ -129,6 +185,6 @@ export async function loader() {
     queryKey: ["categories"],
     queryFn:categoriesService.getCategories,
   });
-   queryClient.prefetchInfiniteQuery(createProductsQueryOptions({categoryId: null}));
+   queryClient.prefetchInfiniteQuery(createProductsQueryOptions({search:"",categoryId: null, sortField: "creationAt", direction: "backward"}));
   return null;
 }

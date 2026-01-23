@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import type { EmailOtpType } from "@supabase/supabase-js";
+import { DEFAULT_OTP_TYPE, DEFAULT_USER_ROLE, isValidOtpType, type UserWithRole } from "../types/Auth.interface";
 import { handleAuthCall } from "../utils/apiUtils";
 
 export const authService = {
@@ -17,7 +19,11 @@ export const authService = {
     const code = url.searchParams.get("code");
 
     if (token_hash) {
-      await authService.verifyOtp(token_hash, (type as any) || "email");
+      const otpType:EmailOtpType=isValidOtpType(type) 
+      ? type
+      : DEFAULT_OTP_TYPE;
+      
+      await authService.verifyOtp(token_hash,otpType);
       return true;
     }
 
@@ -44,7 +50,7 @@ export const authService = {
       "signUp"
     ),
 
-  verifyOtp: (token_hash: string, type: any) =>
+  verifyOtp: (token_hash: string, type: EmailOtpType ) =>
     handleAuthCall(
       supabase.auth.verifyOtp({ token_hash, type }),
       "verifyOtp"
@@ -53,22 +59,35 @@ export const authService = {
   getSession: async () => {
     const data = await handleAuthCall(
       supabase.auth.getSession(),
-      "getSession",
-      { session: null } as any
+      "getSession"
+      // { session: null } as any
     );
-    return data?.session;
+    return data?.session ?? null;
   },
 
   userDataDetail: () =>
     handleAuthCall(
       supabase.auth.getUser(),
-      "getUser",
-      { user: null } as any
+      "getUser"
+      // { user: null } as any
     ),
-
-  userData: async () => {
+  userData: async () : Promise<UserWithRole | null> => {
     const data = await authService.userDataDetail();
-    return data?.user;
+    if(!data?.user) return null;
+    const {data:profile,error:profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', data.user.id)
+    .single();
+    if(profileError){
+      console.error('[Auth] Failed to fetch profile:', profileError);
+       return {
+        ...data.user,
+        profile_role:DEFAULT_USER_ROLE  
+      };
+    }
+    return {...data.user,profile_role:profile?.role ?? DEFAULT_USER_ROLE   };
+
   },
 
   signOut: () =>

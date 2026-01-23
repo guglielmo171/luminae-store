@@ -5,11 +5,17 @@ const apiClient : AxiosInstance= axios.create({
       timeout: 10000,
 });
 
+export const apiClientRest : AxiosInstance= axios.create({
+    baseURL: "/api",
+      timeout: 10000,
+});
 
-apiClient.interceptors.request.use(config=>{
-    const token = localStorage.getItem("token");
-    if(token){
-        config.headers.Authorization = `Bearer ${token}`;
+
+apiClientRest.interceptors.request.use(config=>{
+    // const token = localStorage.getItem("token");
+    const jwt = sessionStorage.getItem("jwt");
+    if(jwt){
+        config.headers.Authorization = `Bearer ${jwt}`;
     }
     return config;
 })
@@ -18,7 +24,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);

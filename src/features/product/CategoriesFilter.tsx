@@ -8,7 +8,7 @@ const CategoryFilters = (props: Omit<CategoryFiltersViewProps, 'categories'>) =>
     queryKey: ["categories"],
     queryFn: () => categoriesService.getCategories(),  
   });
-  return <CategoryFiltersView categories={categories} {...props} />;
+  return <CategoryFiltersView categories={categories.data} {...props} />;
 };
 
 

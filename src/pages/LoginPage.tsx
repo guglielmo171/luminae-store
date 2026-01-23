@@ -12,10 +12,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
+import { authKeys, useResetPasswordOptions, useSignInWithPasswordOptions, useSignUpOptions } from "@/api/queries/authQueries"
 import { authService } from "@/api/services/authApi"
 import { authSchema, type AuthFormData } from "@/api/types/Product.interface"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 
@@ -44,6 +44,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [mode, setMode] = useState<"login" | "signup" | "magic_link" | "forgot_password">("login")
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const form = useForm<AuthFormData>({
     resolver: zodResolver(authSchema),
     defaultValues: { 
@@ -72,7 +73,18 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
   });
   const {mutate:signInWithPassword,isPending:isSignInWithPasswordPending} = useMutation({
     ...useSignInWithPasswordOptions(),
-    onSuccess:()=>{
+    onSuccess:(data)=>{
+      console.log('log auth data',data?.session.access_token);
+      const jwt=data?.session.access_token
+      if(jwt){
+        sessionStorage.setItem('jwt',jwt);
+      }
+
+
+      // Refetch delle query per aggiornare la navbar (stessa logica di useSignInWithPasswordOptions)
+      queryClient.invalidateQueries({ queryKey: authKeys.session() });
+      queryClient.invalidateQueries({ queryKey: authKeys.user() });
+      // Logica aggiuntiva
       form.reset(); 
       toast.success('Logged in successfully!');
       navigate("/")
@@ -100,13 +112,13 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
 
     switch (mode) {
     case 'login':
-      signInWithPassword({ email, password:password! });
+      signInWithPassword({ email, password:password });
       break;
     case 'magic_link':
       signInWithMagicLink(email);
       break;
     case 'signup':
-      signUp({ email, password:password! });
+      signUp({ email, password:password });
       break;
     case 'forgot_password':
       resetPassword(email);

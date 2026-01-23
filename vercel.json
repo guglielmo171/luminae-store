@@ -1,5 +1,10 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    
+    { "source": "/api/:path*", "destination": "https://luminae-store-be.onrender.com/api/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  
+  ],
    "git": {
     "deploymentEnabled": {
       "**": false,

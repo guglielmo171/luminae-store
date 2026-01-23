@@ -36,6 +36,13 @@ export async function handleAuthCall<T>(
   const data = (result as any).data;
 
   if (error) {
+    // Se l'errore è "sessione mancante", è uno stato valido (utente non autenticato)
+    // Non lanciare eccezione, ritorna null
+    if (error.message?.includes('Auth session missing') || error.name === 'AuthSessionMissingError') {
+      console.log(`[Auth Service] No active session in ${context}`);
+      return null;
+    }
+
     if (fallback !== undefined) {
       console.warn(`[Auth Service] Error in ${context}, using fallback:`, error);
       return fallback;

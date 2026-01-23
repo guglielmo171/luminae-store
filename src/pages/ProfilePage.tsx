@@ -12,7 +12,8 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { safeFormatDate } from "@/lib/dateUtils";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   Activity,
   LogOut,
@@ -23,68 +24,33 @@ import {
   Shield,
   User
 } from "lucide-react";
+import { Suspense } from "react";
 import { Link, useNavigate } from "react-router";
 
 export default function ProfilePage() {
-  const { data: user, isLoading } = useQuery(authQueryOptions.user());
+  const navigate = useNavigate();
+  const { data: user } = useSuspenseQuery(authQueryOptions.user());
   const {mutate:handleSignOut,isPending} = useMutation({
     ...useSignOutOptions(),
     onSuccess:()=>{
       navigate("/");
     }
   });
-  const navigate = useNavigate();
-
-  if (isLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="text-muted-foreground animate-pulse">
-            Loading profile...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 text-center">
-        <div className="rounded-full bg-muted p-6">
-          <User className="h-10 w-10 text-muted-foreground" />
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight">Access Restricted</h2>
-          <p className="text-muted-foreground">
-            Please log in to view your profile information.
-          </p>
-        </div>
-        <Button onClick={() => navigate("/login")} size="lg">
-          Go to Login
-        </Button>
-      </div>
-    );
-  }
 
   // Format dates
-  const lastSignIn = user.last_sign_in_at
-    ? new Date(user.last_sign_in_at).toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "Never";
+  const lastSignIn =safeFormatDate(user?.last_sign_in_at,{
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        },"Never")
+  const joinedAt =safeFormatDate(user?.created_at,{
+    month: "long",
+    year: "numeric",
+  },"Unknown")
 
-  const joinedAt = user.created_at
-    ? new Date(user.created_at).toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      })
-    : "Unknown";
 
   return (
     <div className="container max-w-5xl py-10 space-y-8">
@@ -118,7 +84,31 @@ export default function ProfilePage() {
       </div>
 
       <div className="grid gap-8 md:grid-cols-[300px_1fr]">
-        {/* Sidebar / Quick User Card */}
+        <Suspense fallback={(
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="text-muted-foreground animate-pulse">
+            Loading profile...
+          </p>
+        </div>
+      </div>
+    )}>
+      {!user &&  <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 text-center">
+        <div className="rounded-full bg-muted p-6">
+          <User className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold tracking-tight">Access Restricted</h2>
+          <p className="text-muted-foreground">
+            Please log in to view your profile information.
+          </p>
+        </div>
+        <Button onClick={() => navigate("/login")} size="lg">
+          Go to Login
+        </Button>
+      </div>}
+      {!!user && <>
         <div className="space-y-6">
           <Card className="overflow-hidden border-none shadow-lg">
             <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
@@ -133,7 +123,7 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold truncate max-w-[250px]">{user.email}</h2>
                 <div className="flex items-center justify-center gap-2 mt-1">
                   <Badge variant="secondary" className="font-normal text-xs">
-                    {user.role || "User"}
+                    {user?.profile_role}
                   </Badge>
                   {user.app_metadata?.provider && (
                     <Badge variant="outline" className="font-normal text-xs">
@@ -159,7 +149,6 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        {/* Main Content Areas */}
         <div className="space-y-6">
           {/* General Information */}
           <Card>
@@ -251,6 +240,10 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
+      </>}
+
+    </Suspense>
+     
       </div>
     </div>
   );
