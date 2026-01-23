@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CartDrawer from "./CartDrawer";
 
 interface CartButtonProps {
@@ -10,9 +10,21 @@ interface CartButtonProps {
 
 const CartButton = ({ itemCount = 4 }: CartButtonProps) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false)
+
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
+
+  useEffect(() => {
+    if (itemCount > 0) {
+      setIsAnimating(true)
+      const timeout = setTimeout(() => {
+        setIsAnimating(false)
+      }, 600)
+      return () => clearTimeout(timeout)
+    }
+  }, [itemCount])
 
   return (
     <>
@@ -23,7 +35,11 @@ const CartButton = ({ itemCount = 4 }: CartButtonProps) => {
         onClick={openCart}
         aria-label="Open shopping cart"
       >
-        <ShoppingBag className="size-5" />
+        <ShoppingBag 
+  className={`size-5 transition-transform ${
+    isAnimating ? 'animate-[wiggle_0.5s_ease-in-out]' : ''
+  }`} 
+/>
         {itemCount > 0 && (
           <Badge
             variant="destructive"

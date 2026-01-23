@@ -12,6 +12,7 @@ import {
 import { ArrowRight, Package, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import CartItem from "./CartItem";
+import { useCart } from "./cart.store";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -20,37 +21,27 @@ interface CartDrawerProps {
 
 const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
   // Mock data - sostituire con state management Zustand
-  const [cart, setCart] = useState(mockCart);
+  // const [cart, setCart] = useState(mockCart);
+  const cartItems=useCart(store=>store.items)
+  const onQuantityChange=useCart(store=>store.onQuantityChange)
+  const onQuantityRemove=useCart(store=>store.onQuantityRemove)
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     console.log("Quantity changed:", itemId, quantity);
-    // TODO: Implement with Zustand
-    setCart((prev) => ({
-      ...prev,
-      items: prev.items.map((item) =>
-        item.id === itemId ? { ...item, quantity } : item
-      ),
-    }));
+    onQuantityChange(itemId, quantity)
   };
 
   const handleRemoveItem = (itemId: string) => {
     console.log("Remove item:", itemId);
-    // TODO: Implement with Zustand
-    setCart((prev) => ({
-      ...prev,
-      items: prev.items.filter((item) => item.id !== itemId),
-    }));
+    onQuantityRemove(itemId)
   };
 
-  const subtotal = cart.items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0)
   const shipping = subtotal > 100 ? 0 : 10;
   const total = subtotal + shipping;
-  const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const isEmpty = cart.items.length === 0;
+  // const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  const totalItems = cartItems.length
+  const isEmpty = cartItems.length === 0;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -91,7 +82,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="space-y-3">
-                {cart.items.map((item) => (
+                {cartItems.map((item:any) => (
                   <CartItem
                     key={item.id}
                     item={item}

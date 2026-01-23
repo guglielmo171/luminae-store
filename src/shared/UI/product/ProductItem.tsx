@@ -19,9 +19,22 @@ import {
 import { Link } from "react-router";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCart } from "../cart/cart.store";
+import type { CartItem } from "@/api/types/Cart.interface";
 
 const ProductItem = ({product}: {product: Product}) => {
-  const [isImageLoading,setIsImageLoading]=useState(false)
+  const [isImageLoading,setIsImageLoading]=useState(false);
+  const addToCart=useCart(state=>state.onAdd)
+
+  const onAddToCart=(item:Product)=>{
+    const cartItem :CartItem={
+      addedAt:new Date(),
+      id:item.id.toString(),
+      product:product,
+      quantity:1
+    }
+    addToCart(cartItem);
+  }
   return (
        <Card key={product.id} className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 flex flex-col">
                 <CardHeader className="relative flex flex-col">
@@ -71,7 +84,7 @@ const ProductItem = ({product}: {product: Product}) => {
                   <div className="text-2xl font-bold text-foreground">
                     ${product.price}
                   </div>
-                  <Button className="gap-2 shadow-sm transition-all active:scale-95 group/btn">
+                  <Button onClick={()=>onAddToCart(product)} className="gap-2 shadow-sm transition-all active:scale-95 group/btn">
                     <ShoppingBag className="size-4 transition-transform group-hover/btn:-rotate-12" />
                     Add
                   </Button>
