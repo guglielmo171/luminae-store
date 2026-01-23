@@ -19,25 +19,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 
-const socialProviders = [
-  {
-    id: "google",
-    name: "Google",
-    icon:  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
-                      <path
-                        d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .533 5.333.533 12S5.867 24 12.48 24c3.44 0 6.013-1.133 8.053-3.24 2.107-2.187 2.76-5.413 2.76-7.84 0-.667-.093-1.16-.253-1.84h-10.553z"
-                        fill="currentColor"
-                      />
-                    </svg>,
-    color: "text-primary",
-  },
-  {id:"apple", name:"Apple", icon:  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4" fill="currentColor">
-                      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.24-.93 4.1-.73 1.09.13 2.08.62 2.77 1.47-2.58 1.6-2.12 6.54 1.05 7.82-1.35 3.32-3.1 3.56-2.99 3.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.16 2.22-1.61 4.2-3.74 4.25z"/>
-                    </svg>,
-    color: "text-primary",
+// const socialProviders = [
+//   {
+//     id: "google",
+//     name: "Google",
+//     icon:  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+//                       <path
+//                         d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .533 5.333.533 12S5.867 24 12.48 24c3.44 0 6.013-1.133 8.053-3.24 2.107-2.187 2.76-5.413 2.76-7.84 0-.667-.093-1.16-.253-1.84h-10.553z"
+//                         fill="currentColor"
+//                       />
+//                     </svg>,
+//     color: "text-primary",
+//   },
+//   {id:"apple", name:"Apple", icon:  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4" fill="currentColor">
+//                       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.24-.93 4.1-.73 1.09.13 2.08.62 2.77 1.47-2.58 1.6-2.12 6.54 1.05 7.82-1.35 3.32-3.1 3.56-2.99 3.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.16 2.22-1.61 4.2-3.74 4.25z"/>
+//                     </svg>,
+//     color: "text-primary",
      
-  }
-]
+//   }
+// ]
 
 
 export default function LoginPage() {
@@ -250,16 +250,16 @@ const handleModeChange = (newMode:"login" | "signup" | "magic_link" | "forgot_pa
                     </button>
                   </div>
                   <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                    <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                    {/* <span className="relative z-10 bg-background px-2 text-muted-foreground">
                       Or continue with
-                    </span>
+                    </span> */}
                   </div>
-                  <div className="flex flex-col gap-4">
+                  {/* <div className="flex flex-col gap-4">
                     {socialProviders.map(s => (<Button key={s.id} type="button" variant="outline" className="w-full">
                       {s.icon}
                       {s.name}
                     </Button>))}
-                  </div>
+                  </div> */}
                 </div>
                 <div className="mt-4 text-center text-sm">
                   {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
