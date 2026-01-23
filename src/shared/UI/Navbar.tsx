@@ -253,6 +253,8 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
+import CartButton from "./cart/CartButton";
+import { useCart } from "./cart/cart.store";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -264,6 +266,8 @@ const Navbar = () => {
             navigate("/login");
         }
     });
+
+    const cartCount = useCart(state=>state.items).length
 
     const navbarElements=navbar.map(el=>{
       const isVisible= ((!!el.auth && el?.role === "Admin") && (!!user && user?.profile_role === "Admin"))
@@ -304,7 +308,9 @@ const Navbar = () => {
       </NavigationMenuList>
     </NavigationMenu>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <CartButton itemCount={cartCount} />
+
                   {user ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
