@@ -2,19 +2,25 @@ import { Link } from "react-router";
 import { Sparkles, Github, Twitter, Instagram, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { createNewsletterOptions } from "@/api/queries/mailQueries";
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
+  
+  const {mutate:sendSubscription}=useMutation({...createNewsletterOptions(),
+    onSuccess(data, variables, onMutateResult, context) {
+      console.log('data newsletter send',data);
+      console.log('data newsletter variables',variables);
+      toast.success("Thanks for subscribing! You’re in — check your inbox soon for fresh updates, tips and exclusive content.")
+    },
 
-  const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Show success toast
-    toast.success("Thanks for subscribing! You’re in — check your inbox soon for fresh updates, tips and exclusive content.");
-    
-    // Reset form
-    setEmail("");
+  })
+
+  const handleNewsletterSubmit = (fd:FormData) => {
+    const email= fd.get("email") as string
+    sendSubscription(email);
   };
+
 
   return (
     <footer className="border-t border-border bg-card/30 py-12 px-6 md:px-12 lg:px-24 mt-auto">
@@ -57,12 +63,11 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold text-foreground">Newsletter</h4>
             <p className="text-sm text-muted-foreground">Subscribe to get the latest updates.</p>
-            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+            <form action={handleNewsletterSubmit} className="flex gap-2">
               <input 
                 type="email" 
                 placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
                 required
                 className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
               />
