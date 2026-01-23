@@ -7,8 +7,10 @@ export const useCart= create<{
     onQuantityChange:(itemId: string, quantity: number)=>void
     onQuantityRemove:(itemId: string)=>void
     onAdd:(item:CartItem)=>void
+    clear:()=>void
 }>((set,get)=>({
     items:[],
+    clear:()=>set(()=>({items:[]})),
     onAdd:(item:CartItem)=>set(()=>{
         const alreadyExist=get().items.find(i=>i.id == item.id);
         // const newItem=alreadyExist ? {...alreadyExist,quantity:alreadyExist.quantity + 1}: item;

@@ -1,8 +1,9 @@
-import { mockCart } from "@/api/mock/cartMockData";
 import { Button } from "@/components/ui/button";
+
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -10,7 +11,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ArrowRight, Package, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { toast } from "sonner";
 import CartItem from "./CartItem";
 import { useCart } from "./cart.store";
 
@@ -20,11 +21,19 @@ interface CartDrawerProps {
 }
 
 const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
-  // Mock data - sostituire con state management Zustand
-  // const [cart, setCart] = useState(mockCart);
   const cartItems=useCart(store=>store.items)
   const onQuantityChange=useCart(store=>store.onQuantityChange)
   const onQuantityRemove=useCart(store=>store.onQuantityRemove)
+  const onClear=useCart(store=>store.clear)
+
+  function checkout(){
+    const audio = new Audio('/sounds/cash-register.mp3')
+    audio.volume = 0.5 
+    audio.play().catch(err => console.log('Audio play failed:', err))
+
+    toast.info("Checkout succeed",{position:'top-right'})
+    onClear()
+  }
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     console.log("Quantity changed:", itemId, quantity);
@@ -44,7 +53,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
   const isEmpty = cartItems.length === 0;
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
+    <Sheet open={isOpen} onOpenChange={onClose} >
       <SheetContent
         side="right"
         className="w-full sm:max-w-md flex flex-col p-0"
@@ -132,11 +141,13 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
               </div>
 
               <SheetFooter className="px-6 pb-6 pt-2">
-                <Button size="lg" className="w-full gap-2 text-base" asChild>
-                  <a href="/checkout">
+              {/* SheetClose */}
+                <Button onClick={checkout}size="lg" className="w-full gap-2 text-base" asChild>
+                  <SheetClose>
+
                     Procedi al checkout
                     <ArrowRight className="size-4" />
-                  </a>
+                  </SheetClose>
                 </Button>
               </SheetFooter>
             </div>
