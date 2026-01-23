@@ -18,6 +18,8 @@ export const authQueryOptions = {
     queryOptions({
       queryKey: authKeys.user(),
       queryFn: authService.userData,
+      retry: false, // Non ritentare se fallisce
+      staleTime: 5 * 60 * 1000, // Cache per 5 minuti
     }),
 };
 
